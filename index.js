@@ -2,9 +2,11 @@ window.onload = () => init()
 
 function init() {
   setupDate()
+  setupChronograph(localStorage.getItem('end_day'))
   document.body.style.opacity = '1'
 }
 
+// Animates current date in.
 function setupDate() {
   const el = document.querySelector('.date') 
   const date = new Date().toDateString()
@@ -29,4 +31,50 @@ function splitText(word) {
     ).join('')
   }
   return ''
+}
+
+// Given an endDay (value between 1-7 signifies day of week) or undefined,
+// returns how much time in HH:MM:SS is left from current day until that next end day.
+//
+// Defaults to 7 (Sunday)
+function getDayFrom(endDay = 7) {
+  if (endDay < 0 || endDay > 7) {
+    console.error(`endDay of ${endDay} is not a valid number. Only numbers including 0 - 7 allowed. Defaulting to 7.`) 
+    endDay = 7
+  }
+
+  // Cache today.
+  const today = new Date()
+  // Another copy of today - will be mutating this value to calculate end.
+  const now = new Date()
+
+  if (endDay <= now.getDay()) {
+    endDay = endDay % 7 + 7
+  }
+
+  const end = new Date(new Date(now.setDate(now.getDate() + (endDay - now.getDay()))).setHours(0,0,0,0))
+
+  return end 
+}
+
+function setupChronograph(endDay = 7) {
+  const today = new Date()
+  const endOfWeek = getDayFrom(endDay)
+
+  // Set two different intervals so the times don't start matching one another.
+  let remainingWeek = Math.abs(endOfWeek - today)
+  let weekRemainingEl = document.querySelector('.chronograph #week-remaining')
+
+  setInterval(() => {
+    weekRemainingEl.innerText = remainingWeek
+    remainingWeek -= 53
+  }, 53)
+
+  let remainingDay = Math.abs(getDayFrom(today.getDay() + 1) - today)
+  let dayRemainingEl = document.querySelector('.chronograph #today-remaining')
+
+  setInterval(() => {
+    dayRemainingEl.innerText = remainingDay
+    remainingDay -= 67
+  }, 67)
 }

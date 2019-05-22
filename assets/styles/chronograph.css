@@ -1,10 +1,51 @@
 ul.chronograph {
+  list-style: none;
   position: fixed;
   bottom: 0;
   left: 5%;
-  list-style: none;
+  display: grid;
+  grid-gap: .5vw;
   margin-bottom: 2vw;
   padding: 0;
-
   font-size: var(--font-small);
+
+}
+
+ul.chronograph > li {
+  position: relative;
+  display: grid;
+  grid-template-columns: calc(var(--font-small) * 7) auto;
+  padding: 5px;
+  margin: -5px;
+  cursor: default;
+  outline: none;
+}
+
+ul.chronograph > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #000;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+}
+
+ul.chronograph >li:focus::before {
+  opacity: 1;
+}
+
+@media(hover: hover) {
+  ul.chronograph > li .hover-text {
+    opacity: 0;
+    transition: opacity 250ms var(--ease);
+  }
+
+  ul.chronograph > li:hover .hover-text, 
+  ul.chronograph > li:focus .hover-text {
+    opacity: 1; 
+  }
 }

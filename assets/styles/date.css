@@ -1,10 +1,10 @@
-p.date {
+div.date {
   position: fixed;
   bottom: 0;
   right: 0;
 }
 
-p.date .year {
+div.date .year {
   font-size: var(--font-x-large);
 }
 
@@ -15,7 +15,7 @@ p.date .year {
   }
 }
 
-p.date .day {
+div.date .day {
   display: inline-block;
   font-size: var(--font-large);
 }

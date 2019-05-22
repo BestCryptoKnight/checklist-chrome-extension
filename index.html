@@ -9,18 +9,7 @@
   </head>
   <body style="opacity: 0; transition: opacity 500ms var(--ease)">
     <h1 class="hidden">Things That Matter Chrome Extension</h1>
-    <p class="date">
-      <span class="day"></span> 
-      <span class="year"></span> 
-    </p>
-    <ul class="chronograph">
-      <li>
-        Week's progress: 
-      </li> 
-      <li>
-        Today's progress: 
-      </li>
-    </ul>
+    
 
     <section class="checklists">
       <div class="checklist-container">
@@ -34,6 +23,21 @@
         </ul>
       </div> 
     </section>
+
+    <div class="date">
+      <span class="day"></span> 
+      <span class="year"></span> 
+    </div>
+    <ul class="chronograph">
+      <li tabindex="0">
+        <span id="week-remaining"></span>
+        <span class="hover-text">EOW</span>
+      </li> 
+      <li tabindex="0">
+        <span id="today-remaining"></span> 
+        <span class="hover-text">EOD</span>
+      </li>
+    </ul>
     <script src="index.js"></script>
   </body>
 </html>

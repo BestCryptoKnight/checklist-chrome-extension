@@ -1,7 +1,6 @@
 @font-face {
-  font-family: 'Kernit';
-  src: url('../..//assets/fonts/Kernit-Outline.woff2') format('woff2'),
-    url('../../assets/fonts/Kernit-Outline.woff') format('woff');
+  font-family: 'Garamond';
+  src: url('../../assets/fonts/GaramondPro-Bold.otf') format('opentype')
   font-weight: 100 700;
 }
 
@@ -31,7 +30,7 @@
   --font-x-large: 10vw;
 
   --font-inter: Inter;
-  --font-kernit: Kernit;
+  --font-garamond: Garamond;
 
   --color-white: rgb(250, 249, 248);
 
