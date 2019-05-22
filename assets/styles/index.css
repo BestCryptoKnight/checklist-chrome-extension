@@ -25,7 +25,7 @@
 }
 
 :root {
-  --font-small: 13px;
+  --font-small: .85vw;
   --font-medium: 15px;
   --font-large: 2vw;
   --font-x-large: 10vw;

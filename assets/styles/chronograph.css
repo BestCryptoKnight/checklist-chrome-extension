@@ -1,7 +1,10 @@
 ul.chronograph {
   position: fixed;
   bottom: 0;
-  left: calc(5% - 40px);
+  left: 5%;
   list-style: none;
   margin-bottom: 2vw;
+  padding: 0;
+
+  font-size: var(--font-small);
 }
