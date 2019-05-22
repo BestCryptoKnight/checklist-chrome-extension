@@ -1,0 +1,29 @@
+section.checklists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1680px;
+  margin: auto;
+  padding: 5%;
+}
+
+div.checklist-container {
+  position: relative;
+  padding-left: 40px;
+}
+
+h2.side-header {
+  writing-mode: vertical-lr;
+  font-size: var(--font-small);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+ul.checklist {
+  padding: 20px;
+  box-shadow: var(--box-shadow); 
+  border-radius: var(--border-radius);
+  list-style: none;
+}

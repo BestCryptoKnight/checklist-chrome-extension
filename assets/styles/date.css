@@ -1,0 +1,42 @@
+p.date {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+
+p.date .year {
+  font-size: var(--font-x-large);
+}
+
+@keyframes fadeInUp {
+  100% {
+    opacity: 1;
+    transform: translateY(0); 
+  }
+}
+
+p.date .day {
+  display: inline-block;
+  font-size: var(--font-large);
+}
+
+@keyframes slideInFromRight {
+  to {
+    transform: translateX(0); 
+  }
+}
+
+span.split-letter {
+  display: inline-block; 
+  overflow: hidden;
+  vertical-align: bottom;
+  font-family: inherit;
+}
+
+span.split-letter > span {
+  display: block;
+  font-family: inherit;
+  transform: translateX(100%);
+  animation: slideInFromRight 1000ms var(--ease);
+  animation-fill-mode: forwards;
+}

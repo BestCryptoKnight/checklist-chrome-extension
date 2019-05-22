@@ -1,0 +1,7 @@
+ul.chronograph {
+  position: fixed;
+  bottom: 0;
+  left: calc(5% - 40px);
+  list-style: none;
+  margin-bottom: 2vw;
+}

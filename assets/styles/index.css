@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'Kernit';
+  src: url('../..//assets/fonts/Kernit-Outline.woff2') format('woff2'),
+    url('../../assets/fonts/Kernit-Outline.woff') format('woff');
+  font-weight: 100 700;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../../assets/fonts/Inter-Regular.woff2') format('woff2'),
+    url('../../assets/fonts/Inter-Regular.woff') format('woff');
+  font-weight: 100 700;
+}
+
+* {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-font-feature-settings: 'pnum';
+  font-feature-settings: 'pnum';
+  font-variant-numeric: proportional-nums;
+  font-family: var(--font-inter);
+  box-sizing: border-box;
+}
+
+:root {
+  --font-small: 13px;
+  --font-medium: 15px;
+  --font-large: 2vw;
+  --font-x-large: 10vw;
+
+  --font-inter: Inter;
+  --font-kernit: Kernit;
+
+  --color-white: rgb(250, 249, 248);
+
+  --box-shadow: 0 1px 3px rgba(188, 193, 217, .12), 0 5px 12px rgba(188, 193, 217, .25);
+  --border-radius: 8px;
+
+  --ease: cubic-bezier(0.8, 0, 0.2, 1);
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol {
+  margin: 0;
+  font-size: var(--font-medium);
+}
+
+body {
+  background: var(--color-white); 
+  padding: 0;
+  margin: 0;
+}
+
+::selection {
+  background: transparent;
+  color: #fff;
+}
+::-moz-selection {
+  background: transparent;
+  color: #fff;
+}
+
+.hidden {
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  user-select: none;
+  pointer-events: none;
+  touch-action: none;
+}
