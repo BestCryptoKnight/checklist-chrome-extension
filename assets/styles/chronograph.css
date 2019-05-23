@@ -4,19 +4,20 @@ ul.chronograph {
   bottom: 0;
   left: 5%;
   display: grid;
-  grid-gap: .5vw;
+  grid-gap: 0.5vw;
   margin-bottom: 2vw;
   padding: 0;
   font-size: var(--font-small);
-
 }
 
 ul.chronograph > li {
   position: relative;
   display: grid;
-  grid-template-columns: calc(var(--font-small) * 7) auto;
+  grid-template-columns: calc(var(--font-small) * 6) auto;
+  grid-gap: 0.5vw;
   padding: 5px;
   margin: -5px;
+  text-shadow: 1px 0px var(--color-white);
   cursor: default;
   outline: none;
 }
@@ -34,18 +35,24 @@ ul.chronograph > li::before {
   touch-action: none;
 }
 
-ul.chronograph >li:focus::before {
+ul.chronograph > li:focus::before {
   opacity: 1;
 }
 
-@media(hover: hover) {
+ul.chronograph > li .hover-text,
+ul.chronograph > li #week-remaining,
+ul.chronograph > li #today-remaining {
+  background: var(--color-white);
+}
+
+@media (hover: hover) {
   ul.chronograph > li .hover-text {
     opacity: 0;
     transition: opacity 250ms var(--ease);
   }
 
-  ul.chronograph > li:hover .hover-text, 
+  ul.chronograph > li:hover .hover-text,
   ul.chronograph > li:focus .hover-text {
-    opacity: 1; 
+    opacity: 1;
   }
 }

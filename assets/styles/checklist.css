@@ -3,30 +3,76 @@ section.checklists {
   grid-template-columns: 1fr 1fr;
   max-width: 1680px;
   margin: auto;
-  padding: 10% 5% 5% 5%;
+  padding: 5%;
+}
+
+@media (max-width: 768px) {
+  section.checklists {
+    grid-template-columns: 1fr;
+  }
 }
 
 div.checklist-container {
   position: relative;
-  padding-left: 4vw;
-}
-
-h2.side-header {
-  writing-mode: vertical-lr;
-  font-size: var(--font-small);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 ul.checklist {
-  box-shadow: var(--box-shadow); 
-  border: 1px solid var(--color-black);
-  border-radius: var(--border-radius);
+  position: relative;
   list-style: none;
   padding: 0 0 0 3vw;
+  background: var(--color-white);
+  margin-bottom: 5vw;
+}
+
+@keyframes slideRightDown {
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+ul.checklist::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--color-black);
+  border-radius: var(--border-radius);
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: 0 0;
+  animation: slideRightDown 500ms var(--ease);
+  animation-fill-mode: forwards;
+  animation-delay: 500ms;
+}
+
+@keyframes slideRight {
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+ul.checklist::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(var(--border-radius) / 2);
+  right: calc(var(--border-radius) / 2);
+  height: 1px;
+  background: var(--color-black);
+  transform: scaleX(0);
+  transform-origin: 0 0;
+  animation: slideRight 800ms var(--ease);
+  z-index: 1;
+}
+
+@keyframes fadeIn {
+  100% {
+    opacity: 1;
+  }
 }
 
 ul.checklist > li {
@@ -41,9 +87,13 @@ button.checklist-toggler {
   transform: translateY(-50%);
   width: 2vw;
   height: 2vw;
+  border: 1px solid var(--color-black);
+  border-radius: 3px;
+  background: var(--color-white);
 }
 
 button.checklist-toggler > span {
+  display: none;
   height: 0;
   width: 0;
   visibility: hidden;
@@ -51,12 +101,12 @@ button.checklist-toggler > span {
 }
 
 textarea.checklist-item {
-  display: block;  
+  display: block;
   width: 100%;
-  height: calc(var(--font-ml) * 1.4);
+  min-height: calc(var(--font-ml) * 1.4);
   font-size: var(--font-ml);
   background: none;
   border: none;
   resize: none;
+  overflow-y: hidden;
 }
-

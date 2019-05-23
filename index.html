@@ -2,40 +2,39 @@
 <html>
   <head>
     <title>New Tab</title>
-    <link rel="stylesheet" type="text/css" href="./assets/styles/index.css">
-    <link rel="stylesheet" type="text/css" href="./assets/styles/date.css">
-    <link rel="stylesheet" type="text/css" href="./assets/styles/checklist.css">
-    <link rel="stylesheet" type="text/css" href="./assets/styles/chronograph.css">
+    <link rel="stylesheet" type="text/css" href="./assets/styles/index.css" />
+    <link rel="stylesheet" type="text/css" href="./assets/styles/date.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./assets/styles/checklist.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./assets/styles/chronograph.css"
+    />
   </head>
   <body style="opacity: 0; transition: opacity 500ms var(--ease)">
     <h1 class="hidden">Things That Matter Chrome Extension</h1>
-    
 
     <section class="checklists">
       <div class="checklist-container">
-        <h2 class="side-header">Today</h2> 
-        <ul class="checklist">
-          <li>
-            <button class="checklist-toggler">
-              <span>Toggle item</span>
-            </button>
-            <textarea class="checklist-item" placeholder="Get shit done!"></textarea>
-          </li>  
-        </ul>
-      </div> 
+        <ul class="checklist"></ul>
+      </div>
     </section>
 
     <div class="date">
-      <span class="day"></span> 
-      <span class="year"></span> 
+      <span class="day"></span>
+      <span class="year"></span>
     </div>
     <ul class="chronograph">
       <li tabindex="0">
         <span id="week-remaining"></span>
         <span class="hover-text">EOW</span>
-      </li> 
+      </li>
       <li tabindex="0">
-        <span id="today-remaining"></span> 
+        <span id="today-remaining"></span>
         <span class="hover-text">EOD</span>
       </li>
     </ul>

@@ -11,11 +11,11 @@ function init() {
 
 // Animates current date in.
 function setupDate() {
-  const el = document.querySelector('.date') 
+  const el = document.querySelector('.date')
   const date = new Date().toDateString()
   const [day, year] = [
-    date.slice(0, date.length - 4).trim(), 
-    date.slice(date.length - 4, date.length)
+    date.slice(0, date.length - 4).trim(),
+    date.slice(date.length - 4, date.length),
   ]
 
   el.querySelector('.day').innerHTML = splitText(day)
@@ -25,13 +25,16 @@ function setupDate() {
 
 function splitText(word) {
   if (typeof word === 'string') {
-    return word.split('').map((letter, index) => {
-      if (letter.trim().length) {
-       return `<span class="split-letter"><span style="animation-delay: ${index * 50}ms">${letter}</span></span>`
-      }
-      return ' '
-    }
-    ).join('')
+    return word
+      .split('')
+      .map((letter, index) => {
+        if (letter.trim().length) {
+          return `<span class="split-letter"><span style="animation-delay: ${index *
+            50}ms">${letter}</span></span>`
+        }
+        return ' '
+      })
+      .join('')
   }
   return ''
 }
@@ -42,24 +45,35 @@ function splitText(word) {
 // Defaults to 7 (Sunday)
 function getDayFrom(endDay = 7) {
   if (endDay < 0 || endDay > 7) {
-    console.error(`endDay of ${endDay} is not a valid number. Only numbers including 0 - 7 allowed. Defaulting to 7.`) 
+    console.error(
+      `endDay of ${endDay} is not a valid number. Only numbers including 0 - 7 allowed. Defaulting to 7.`
+    )
     endDay = 7
   }
 
   // Will be mutating this value to calculate end.
   const now = new Date()
 
-  if (endDay <= now.getDay()) {
-    endDay = endDay % 7 + 7
+  if (endDay < now.getDay()) {
+    endDay = (endDay % 7) + 7
   }
 
-  const end = new Date(new Date(now.setDate(now.getDate() + (endDay - now.getDay()))).setHours(0,0,0,0))
+  const end = new Date(
+    new Date(now.setDate(now.getDate() + (endDay - now.getDay()))).setHours(
+      0,
+      0,
+      0,
+      0
+    )
+  )
 
-  return end 
+  return end
 }
 
 function setupChronograph(endDay = 7) {
   const today = new Date()
+  // + 1 because day ends technically midnight of THAT day.
+  // ex; EOW for Sunday === Monday 12:00AM
   const endOfWeek = getDayFrom(endDay)
 
   // Set two different intervals so the times don't start matching one another.
@@ -71,7 +85,7 @@ function setupChronograph(endDay = 7) {
     remainingWeek -= 53
   }, 53)
 
-  let remainingDay = Math.abs(getDayFrom(today.getDay() + 1) - today)
+  let remainingDay = Math.abs(getDayFrom(today.getDay()) - today)
   let dayRemainingEl = document.querySelector('.chronograph #today-remaining')
 
   setInterval(() => {
@@ -79,4 +93,3 @@ function setupChronograph(endDay = 7) {
     remainingDay -= 67
   }, 67)
 }
-
