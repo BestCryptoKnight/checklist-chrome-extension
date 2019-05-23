@@ -1,39 +1,42 @@
+// @ts-ignore
 import { getRandomId } from './utils.mjs'
-
-let allItems, todaysItems
 
 export default function setupChecklist() {
   console.log('setupChecklist')
   let all = localStorage.getItem('all_list')
   let today = localStorage.getItem('today_list')
 
+  // 1. Setup
   // Get all list items from localStorage.
   // Defaults to empty array if errored.
   try {
     if (all === null) {
       localStorage.setItem('all_list', '[]') 
-      allItems = JSON.parse('[]')
+      all = JSON.parse('[]')
     } else {
-      allItems = JSON.parse(all) 
+      all = JSON.parse(all) 
     }
     if (today === null) {
       localStorage.setItem('today_list', '[]') 
-      todaysItems = JSON.parse('[]')
+      today = JSON.parse('[]')
     } else {
-      todaysItems = JSON.parse(today) 
+      today = JSON.parse(today) 
     }
   } catch (err) {
     // Reset if errored.
     localStorage.setItem('all_list', '[]')
     localStorage.setItem('today_list', '[]') 
-    allItems = []
-    todaysItems = []
+
+    all = JSON.parse('[]')
+    today = JSON.parse('[]')
   }
 
-  // 1. Add event listeners to each textarea
-  //   1a. calculate height
-  //   1b. onchange take value and debounce update localStorage
-  //   1c. toggle visibilty back on
+  // 2. Render each item into the dom
+
+  // 3. Add event listeners to each textarea
+  //   3a. calculate height
+  //   3b. onchange take value and debounce update localStorage
+  //   3c. toggle visibilty back on
 }
 
 function ListItem({

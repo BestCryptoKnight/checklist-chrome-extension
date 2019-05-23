@@ -1,6 +1,7 @@
 @font-face {
-  font-family: 'Garamond';
-  src: url('../../assets/fonts/GaramondPro-Bold.otf') format('opentype')
+  font-family: 'GTAmerica';
+  src: url('../../assets/fonts/GT-America-Mono-Regular.woff2') format('woff2'),
+    url('../../assets/fonts/GT-America-Mono-Regular.woff') format('woff');
   font-weight: 100 700;
 }
 
@@ -19,7 +20,7 @@
   -webkit-font-feature-settings: 'pnum';
   font-feature-settings: 'pnum';
   font-variant-numeric: proportional-nums;
-  font-family: var(--font-inter);
+  font-family: var(--font-mono);
   box-sizing: border-box;
 }
 
@@ -31,7 +32,7 @@
   --font-x-large: 10vw;
 
   --font-inter: Inter;
-  --font-garamond: Garamond;
+  --font-mono: GTAmerica;
 
   --color-white: rgb(250, 249, 248);
   --color-black: rgb(0,0,0);

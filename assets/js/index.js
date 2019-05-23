@@ -1,4 +1,4 @@
-import setupChecklist from './assets/js/setup-checklist.mjs'
+import setupChecklist from './setup-checklist.mjs'
 
 window.onload = () => init()
 
