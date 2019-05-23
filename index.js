@@ -1,8 +1,11 @@
+import setupChecklist from './assets/js/setup-checklist.mjs'
+
 window.onload = () => init()
 
 function init() {
   setupDate()
   setupChronograph(localStorage.getItem('end_day'))
+  setupChecklist()
   document.body.style.opacity = '1'
 }
 
@@ -43,9 +46,7 @@ function getDayFrom(endDay = 7) {
     endDay = 7
   }
 
-  // Cache today.
-  const today = new Date()
-  // Another copy of today - will be mutating this value to calculate end.
+  // Will be mutating this value to calculate end.
   const now = new Date()
 
   if (endDay <= now.getDay()) {
@@ -78,3 +79,4 @@ function setupChronograph(endDay = 7) {
     remainingDay -= 67
   }, 67)
 }
+

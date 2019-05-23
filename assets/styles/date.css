@@ -16,8 +16,10 @@ div.date .year {
 }
 
 div.date .day {
-  display: inline-block;
+  display: block;
   font-size: var(--font-large);
+  margin-right: 1vw;
+  text-align: end;
 }
 
 @keyframes slideInFromRight {

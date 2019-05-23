@@ -26,6 +26,7 @@
 :root {
   --font-small: .85vw;
   --font-medium: 15px;
+  --font-ml: 1.5vw;
   --font-large: 2vw;
   --font-x-large: 10vw;
 
@@ -33,8 +34,9 @@
   --font-garamond: Garamond;
 
   --color-white: rgb(250, 249, 248);
+  --color-black: rgb(0,0,0);
 
-  --box-shadow: 0 1px 3px rgba(188, 193, 217, .12), 0 5px 12px rgba(188, 193, 217, .25);
+  --box-shadow: 2px 2px 0px 0px var(--color-black);
   --border-radius: 8px;
 
   --ease: cubic-bezier(0.8, 0, 0.2, 1);

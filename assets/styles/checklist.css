@@ -3,7 +3,7 @@ section.checklists {
   grid-template-columns: 1fr 1fr;
   max-width: 1680px;
   margin: auto;
-  padding: 5%;
+  padding: 10% 5% 5% 5%;
 }
 
 div.checklist-container {
@@ -22,8 +22,41 @@ h2.side-header {
 }
 
 ul.checklist {
-  padding: 20px;
   box-shadow: var(--box-shadow); 
+  border: 1px solid var(--color-black);
   border-radius: var(--border-radius);
   list-style: none;
+  padding: 0 0 0 3vw;
 }
+
+ul.checklist > li {
+  position: relative;
+  padding: 20px;
+}
+
+button.checklist-toggler {
+  position: absolute;
+  top: 50%;
+  left: calc(2vw * -1);
+  transform: translateY(-50%);
+  width: 2vw;
+  height: 2vw;
+}
+
+button.checklist-toggler > span {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  opacity: 0;
+}
+
+textarea.checklist-item {
+  display: block;  
+  width: 100%;
+  height: calc(var(--font-ml) * 1.4);
+  font-size: var(--font-ml);
+  background: none;
+  border: none;
+  resize: none;
+}
+
