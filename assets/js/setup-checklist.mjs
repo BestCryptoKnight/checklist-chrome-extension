@@ -238,22 +238,81 @@ function addEventListenersToDragger(dragger) {
     }
   }
 
+  // Handles:
+  // 1. Moving the dragged item around
+  // 2. Scrolling window up/down based on the position on the dragged item.
+  let isScrolling = false
+  let scrollAnimationId = null
+  let translateOffsetAmount = 0
   function handleMouseMove(e) {
-    const { clientX, clientY } = e
-
     const translate = {
-      x: clientX - pointerOffset.x,
-      y: clientY - pointerOffset.y,
+      x: e.clientX - pointerOffset.x,
+      y: e.clientY - pointerOffset.y,
     }
 
-    target.current.style.transform = `translate3d(${translate.x}px, ${
-      translate.y
-    }px, 0px)`
+    if (!isScrolling) {
+      target.current.style.transform = `translate3d(${
+        translate.x
+      }px, ${translate.y + translateOffsetAmount}px, 0px)`
+    }
     target.current.style.transition = 'none'
     target.current.style.zIndex = 2
 
     // requestAnimationFrame to cache new position and translate elements
     // to updated positions.
+
+    // Scroll window up/down based on position of dragged item.
+    const shouldScrollUp = e.clientY < 100
+    const shouldScrollDown = e.clientY > innerHeight - 100
+    function isAtTopOfPage() {
+      return window.pageYOffset <= 0
+    }
+    function isAtBottomOfPage() {
+      return window.innerHeight + window.scrollY >= document.body.offsetHeight
+    }
+
+    if (shouldScrollUp && !isAtTopOfPage()) {
+      scroll(-1)
+    }
+    if (shouldScrollDown && !isAtBottomOfPage()) {
+      scroll(1)
+    }
+    if (isScrolling && !shouldScrollUp && !shouldScrollDown) {
+      stopScroll()
+    }
+
+    function scroll(direction) {
+      isScrolling = true
+
+      cancelAnimationFrame(scrollAnimationId)
+
+      // If we hit the top or bottom of the page, stop scrolling.
+      if (
+        (window.pageYOffset <= 0 && direction === -1) ||
+        (window.innerHeight + window.scrollY >= document.body.offsetHeight &&
+          direction === 1)
+      ) {
+        stopScroll()
+        return
+      }
+
+      translateOffsetAmount += direction * 12
+
+      window.scrollTo({
+        top: window.pageYOffset + direction * 12,
+      })
+
+      target.current.style.transform = `translate3d(${
+        translate.x
+      }px, ${translate.y + translateOffsetAmount}px, 0px)`
+
+      scrollAnimationId = requestAnimationFrame(() => scroll(direction))
+    }
+
+    function stopScroll() {
+      isScrolling = false
+      cancelAnimationFrame(scrollAnimationId)
+    }
   }
 
   function endDrag() {
@@ -271,6 +330,9 @@ function addEventListenersToDragger(dragger) {
 
     window.removeEventListener('click', endDrag)
     window.removeEventListener('mousemove', handleMouseMove)
+    // Clear scroll animation and set translateOffset back to 0.
+    cancelAnimationFrame(scrollAnimationId)
+    translateOffsetAmount = 0
 
     setTimeout(() => {
       target.current.removeAttribute('class')
