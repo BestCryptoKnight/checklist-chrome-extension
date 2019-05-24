@@ -18,6 +18,7 @@ ul.chronograph > li {
   padding: 5px;
   margin: -5px;
   text-shadow: 1px 0px var(--color-white);
+  color: var(--color-black);
   cursor: default;
   outline: none;
 }
@@ -35,7 +36,7 @@ ul.chronograph > li::before {
   touch-action: none;
 }
 
-ul.chronograph > li:focus::before {
+ul.chronograph > li.focus-visible::before {
   opacity: 1;
 }
 

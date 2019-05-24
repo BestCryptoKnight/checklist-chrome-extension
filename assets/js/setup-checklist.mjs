@@ -1,13 +1,16 @@
 // @ts-ignore
 import { getRandomId } from './utils.mjs'
 
+// Cache root <ul> element.
 const root = document.querySelector('.checklist')
-let all = localStorage.getItem('all_list')
-let today = localStorage.getItem('today_list')
 
-// Array of items with an additional property, isInOriginalPosition
-// for us to animate.
-let currentItems = []
+let storageIds = {
+  all: 'all_list',
+  today: 'today_list',
+}
+let all = localStorage.getItem(storageIds.all)
+let today = localStorage.getItem(storageIds.today)
+
 let isListAnimating = false
 
 export default function setupChecklist() {
@@ -16,21 +19,21 @@ export default function setupChecklist() {
   // Defaults to empty array if errored.
   try {
     if (all === null) {
-      localStorage.setItem('all_list', '[]')
+      localStorage.setItem(storageIds.all, '[]')
       all = JSON.parse('[]')
     } else {
       all = JSON.parse(all)
     }
     if (today === null) {
-      localStorage.setItem('today_list', '[]')
+      localStorage.setItem(storageIds.today, '[]')
       today = JSON.parse('[]')
     } else {
       today = JSON.parse(today)
     }
   } catch (err) {
     // Reset if errored.
-    localStorage.setItem('all_list', '[]')
-    localStorage.setItem('today_list', '[]')
+    localStorage.setItem(storageIds.all, '[]')
+    localStorage.setItem(storageIds.today, '[]')
 
     all = JSON.parse('[]')
     today = JSON.parse('[]')
@@ -64,6 +67,13 @@ export default function setupChecklist() {
 
     addEventListenersToTextarea(textarea)
     addEventListenersToDragger(dragger)
+  })
+
+  // Add an event listener to resize textareas on resize.
+  window.addEventListener('resize', () => {
+    // @ts-ignore
+    const textareas = Array.from(root.querySelectorAll('textarea'))
+    textareas.forEach(t => handleResize(t))
   })
 }
 
@@ -102,7 +112,7 @@ function addEventListenersToTextarea(textarea) {
         if (dataId) {
           // If there's a dataId, we need to update the value in localStorage.
           updateStorage(
-            'today_list',
+            storageIds.today,
             'UPDATE',
             ListItem({
               id: dataId,
@@ -120,7 +130,7 @@ function addEventListenersToTextarea(textarea) {
           target.parentElement.setAttribute('data-id', item.id)
           // @ts-ignore
 
-          updateStorage('today_list', 'ADD', item)
+          updateStorage(storageIds.today, 'ADD', item)
 
           // Add new editor to root.
           addNewEditor()
@@ -130,7 +140,7 @@ function addEventListenersToTextarea(textarea) {
           // If there's a dataId, that means it's saved in localStorage.
           // Delete this item from localStorage since it's empty now.
           updateStorage(
-            'today_list',
+            storageIds.today,
             'DELETE',
             ListItem({
               id: dataId,
@@ -156,7 +166,7 @@ function addEventListenersToTextarea(textarea) {
 
     if (value.length === 0 && dataId) {
       updateStorage(
-        'today_list',
+        storageIds.today,
         'DELETE',
         ListItem({
           id: dataId,
@@ -166,7 +176,7 @@ function addEventListenersToTextarea(textarea) {
       root.removeChild(parentElement)
     } else {
       updateStorage(
-        'today_list',
+        storageIds.today,
         'UPDATE',
         ListItem({
           id: dataId,
@@ -277,9 +287,12 @@ function addEventListenersToDragger(dragger) {
 function addNewEditor() {
   const node = getListItemMarkup(null, null, null)
   root.appendChild(node)
+
   const textarea = node.querySelector('textarea')
+  const dragButton = node.querySelector('button.drag')
+
   addEventListenersToTextarea(textarea)
-  addEventListenersToDragger(node.querySelector('button.drag'))
+  addEventListenersToDragger(dragButton)
   textarea.focus()
 }
 
@@ -341,8 +354,6 @@ function updateStorage(key, action, value) {
       items.push(value)
       break
   }
-
-  console.log('currentItems', currentItems)
 
   localStorage.setItem(key, JSON.stringify(items))
 }

@@ -25,7 +25,7 @@
 }
 
 :root {
-  --font-small: .85vw;
+  --font-small: 0.85vw;
   --font-medium: 15px;
   --font-ml: 1.5vw;
   --font-large: 2vw;
@@ -35,7 +35,7 @@
   --font-mono: GTAmerica;
 
   --color-white: rgb(250, 249, 248);
-  --color-black: rgb(0,0,0);
+  --color-black: rgb(0, 0, 0);
 
   --box-shadow: 2px 2px 0px 0px var(--color-black);
   --border-radius: 8px;
@@ -43,13 +43,21 @@
   --ease: cubic-bezier(0.8, 0, 0.2, 1);
 }
 
-h1, h2, h3, h4, h5, h6, p, ul, ol {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol {
   margin: 0;
   font-size: var(--font-medium);
 }
 
 body {
-  background: var(--color-white); 
+  background: var(--color-white);
   padding: 0;
   margin: 0;
 }
@@ -61,6 +69,18 @@ body {
 ::-moz-selection {
   background: transparent;
   color: #fff;
+}
+
+/*
+  This will hide the focus indicator if the element receives focus via the mouse,
+  but it will still show up on keyboard focus.
+*/
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+textarea {
+  outline: none;
 }
 
 .hidden {

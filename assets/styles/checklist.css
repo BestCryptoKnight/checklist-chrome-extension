@@ -183,8 +183,10 @@ textarea.checklist-item {
   width: 100%;
   min-height: calc(var(--font-ml) * 1.4);
   font-size: var(--font-ml);
+  color: var(--color-black);
   background: none;
   border: none;
+  padding: 0 0 0 0.5vw;
   resize: none;
   overflow-y: hidden;
   z-index: 1;

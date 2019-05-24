@@ -2,6 +2,7 @@ div.date {
   position: fixed;
   bottom: 0;
   right: 3%;
+  color: var(--color-black);
 }
 
 div.date .year {
