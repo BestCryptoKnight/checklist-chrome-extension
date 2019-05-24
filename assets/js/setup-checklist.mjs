@@ -154,8 +154,6 @@ function addEventListenersToTextarea(textarea) {
       e.target.parentElement.getAttribute('data-id'),
     ]
 
-    console.log('e.target', e.target)
-
     if (value.length === 0 && dataId) {
       updateStorage(
         'today_list',
@@ -192,6 +190,7 @@ function addEventListenersToDragger(dragger) {
   // mouse was initially clicked.
   const target = {
     current: null,
+    rest: null,
   }
   const pointerOffset = {
     x: 0,
@@ -208,14 +207,24 @@ function addEventListenersToDragger(dragger) {
       target.current.classList.add('dragging')
       target.current.style.transition = `none`
 
-      const rest = root.querySelectorAll('li[data-id]:not(.dragging)')
-      console.log('rest', rest)
+      // @ts-ignore
+      target.rest = Array.from(
+        root.querySelectorAll('li[data-id]:not(.dragging)')
+      )
+
+      target.rest.forEach(el => {
+        el.style.opacity = '.25'
+        el.style.transition = 'none'
+        el.style.animation = ''
+        el.style.pointerEvents = 'none'
+        el.style.touchAction = 'none'
+      })
 
       pointerOffset.x = e.clientX
       pointerOffset.y = e.clientY
 
       window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('click', cancelDrag)
+      window.addEventListener('click', endDrag)
     }
   }
 
@@ -237,12 +246,20 @@ function addEventListenersToDragger(dragger) {
     // to updated positions.
   }
 
-  function cancelDrag() {
+  function endDrag() {
     // translate to new cached position
     target.current.style.transform = 'translate3d(0px, 0px, 0px)'
     target.current.style.transition = 'transform 250ms var(--ease)'
 
-    window.removeEventListener('click', cancelDrag)
+    target.rest.forEach(el => {
+      el.style.opacity = '1'
+      el.style.transition = 'none'
+      el.style.animation = ''
+      el.style.pointerEvents = 'initial'
+      el.style.touchAction = 'initial'
+    })
+
+    window.removeEventListener('click', endDrag)
     window.removeEventListener('mousemove', handleMouseMove)
 
     setTimeout(() => {
