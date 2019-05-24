@@ -1,7 +1,7 @@
 div.date {
   position: fixed;
   bottom: 0;
-  right: 0;
+  right: 3%;
 }
 
 div.date .year {
@@ -11,7 +11,7 @@ div.date .year {
 @keyframes fadeInUp {
   100% {
     opacity: 1;
-    transform: translateY(0); 
+    transform: translateY(0);
   }
 }
 
@@ -24,12 +24,12 @@ div.date .day {
 
 @keyframes slideInFromRight {
   to {
-    transform: translateX(0); 
+    transform: translateX(0);
   }
 }
 
 span.split-letter {
-  display: inline-block; 
+  display: inline-block;
   overflow: hidden;
   vertical-align: bottom;
   font-family: inherit;

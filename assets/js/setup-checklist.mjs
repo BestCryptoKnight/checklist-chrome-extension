@@ -5,6 +5,9 @@ const root = document.querySelector('.checklist')
 let all = localStorage.getItem('all_list')
 let today = localStorage.getItem('today_list')
 
+let items = []
+let isListAnimating = false
+
 export default function setupChecklist() {
   // 1. Setup
   // Get all list items from localStorage.
@@ -48,26 +51,31 @@ export default function setupChecklist() {
   //   3c. toggle visibilty back on
 
   // @ts-ignore
-  const textareas = Array.from(root.querySelectorAll('textarea'))
-  // @ts-ignore
-  const buttons = Array.from(root.querySelectorAll('button'))
+  const listItems = Array.from(root.querySelectorAll('li'))
 
-  console.log(textareas, buttons)
-  textareas.forEach(t => addEventListenersToTextarea(t))
+  items = listItems.forEach(i => {
+    const [textarea, toggler, dragger] = [
+      i.querySelector('textarea'),
+      i.querySelector('button.checklist-toggler'),
+      i.querySelector('button.drag'),
+    ]
+
+    addEventListenersToTextarea(textarea)
+    addEventListenersToDragger(dragger)
+  })
+}
+
+function handleResize(target) {
+  target.style.height = '0'
+  target.style.height =
+    target.offsetHeight < target.scrollHeight
+      ? target.scrollHeight + 'px'
+      : 'calc(var(--font-ml) * 1.4)'
 }
 
 function addEventListenersToTextarea(textarea) {
-  function handleResize(e) {
-    const target = e.target
-    target.style.height = '0'
-    target.style.height =
-      target.offsetHeight < target.scrollHeight
-        ? target.scrollHeight + 'px'
-        : 'calc(var(--font-ml) * 1.4)'
-  }
-
   function handleInput(e) {
-    handleResize(e)
+    handleResize(e.target)
   }
 
   function handleKeyDown(e) {
@@ -86,7 +94,7 @@ function addEventListenersToTextarea(textarea) {
 
       // Update current textarea value to trimmed value.
       target.value = value
-      handleResize(e)
+      handleResize(target)
 
       if (value.length > 0) {
         if (dataId) {
@@ -128,11 +136,13 @@ function addEventListenersToTextarea(textarea) {
             })
           )
 
-          root.removeChild(target.parentElement)
+          setTimeout(() => {
+            if (root.contains(target.parentElement)) {
+              root.removeChild(target.parentElement)
+            }
+          }, 0)
         }
       }
-
-      console.log(target, value)
     }
   }
 
@@ -143,6 +153,8 @@ function addEventListenersToTextarea(textarea) {
       e.target.parentElement.getAttribute('data-id'),
     ]
 
+    console.log('e.target', e.target)
+
     if (value.length === 0 && dataId) {
       updateStorage(
         'today_list',
@@ -151,6 +163,7 @@ function addEventListenersToTextarea(textarea) {
           id: dataId,
         })
       )
+
       root.removeChild(parentElement)
     } else {
       updateStorage(
@@ -169,7 +182,75 @@ function addEventListenersToTextarea(textarea) {
   textarea.addEventListener('keydown', handleKeyDown)
   textarea.addEventListener('blur', handleBlur)
   // Resize on first call.
-  handleResize({ target: textarea })
+  handleResize(textarea)
+}
+
+function addEventListenersToDragger(dragger) {
+  // On mouse down, we'll cache the pointerOffset, so when
+  // dragging, we can calculate the dragging from where the
+  // mouse was initially clicked.
+  const target = {
+    current: null,
+  }
+  const pointerOffset = {
+    x: 0,
+    y: 0,
+  }
+
+  function handleMouseDown(e) {
+    if (!isListAnimating) {
+      isListAnimating = true
+
+      const parent = e.target.parentElement
+      target.current = parent
+
+      target.current.classList.add('dragging')
+      target.current.style.transition = `none`
+
+      pointerOffset.x = e.clientX
+      pointerOffset.y = e.clientY
+
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('click', cancelDrag)
+    }
+  }
+
+  function handleMouseMove(e) {
+    const { clientX, clientY } = e
+
+    const translate = {
+      x: clientX - pointerOffset.x,
+      y: clientY - pointerOffset.y,
+    }
+
+    target.current.style.transform = `translate3d(${translate.x}px, ${
+      translate.y
+    }px, 0px)`
+    target.current.style.transition = 'none'
+    target.current.style.zIndex = 2
+
+    // requestAnimationFrame to cache new position and translate elements
+    // to updated positions.
+  }
+
+  function cancelDrag() {
+    // translate to new cached position
+    target.current.style.transform = 'translate3d(0px, 0px, 0px)'
+    target.current.style.transition = 'transform 250ms var(--ease)'
+
+    window.removeEventListener('click', cancelDrag)
+    window.removeEventListener('mousemove', handleMouseMove)
+
+    setTimeout(() => {
+      target.current.removeAttribute('class')
+      target.current.style.zIndex = 'initial'
+      target.current.style.transition = `all 250ms var(--ease)`
+
+      isListAnimating = false
+    }, 250)
+  }
+
+  dragger.addEventListener('mousedown', handleMouseDown)
 }
 
 function addNewEditor() {
@@ -177,6 +258,7 @@ function addNewEditor() {
   root.appendChild(node)
   const textarea = node.querySelector('textarea')
   addEventListenersToTextarea(textarea)
+  addEventListenersToDragger(node.querySelector('button.drag'))
   textarea.focus()
 }
 
@@ -192,6 +274,9 @@ function getListItemMarkup(id, value, isInitialMount) {
         placeholder="Get shit done!"
         spellcheck="false"
       >${value ? value : ''}</textarea>
+      <button class="drag">
+        <span>Drag to reorder</span> 
+      </button>
   `
 
   if (id) {
@@ -219,8 +304,6 @@ function ListItem({ id = getRandomId(), content = '', isComplete = false }) {
 function updateStorage(key, action, value) {
   let items = JSON.parse(localStorage.getItem(key))
 
-  console.log('items', items)
-  console.log('value', value)
   switch (action) {
     case 'DELETE':
       items = items.filter(i => i.id !== value.id)
@@ -237,6 +320,8 @@ function updateStorage(key, action, value) {
       items.push(value)
       break
   }
+
+  console.log('items', items)
 
   localStorage.setItem(key, JSON.stringify(items))
 }

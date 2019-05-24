@@ -40,7 +40,7 @@ function splitText(word) {
 }
 
 // Given an endDay (value between 1-7 signifies day of week) or undefined,
-// returns how much time in HH:MM:SS is left from current day until that next end day.
+// returns how much time in ms left from current day until that next end day.
 //
 // Defaults to 7 (Sunday)
 function getDayFrom(endDay = 7) {
@@ -59,13 +59,15 @@ function getDayFrom(endDay = 7) {
   }
 
   const end = new Date(
-    new Date(now.setDate(now.getDate() + (endDay - now.getDay()))).setHours(
+    new Date(now.setDate(now.getDate() + (endDay - now.getDay() + 1))).setHours(
       0,
       0,
       0,
       0
     )
   )
+
+  console.log('end', end)
 
   return end
 }

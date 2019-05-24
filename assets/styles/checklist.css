@@ -19,7 +19,7 @@ div.checklist-container {
 ul.checklist {
   position: relative;
   list-style: none;
-  padding: 0 0 0 3vw;
+  padding: 0;
   background: var(--color-white);
   margin-bottom: 5vw;
 }
@@ -77,22 +77,68 @@ ul.checklist::after {
 
 ul.checklist > li {
   position: relative;
-  padding: 20px;
+  padding: 1.5vw 5vw;
+}
+
+ul.checklist > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-white);
+  border: 1px solid var(--color-black);
+  border-radius: var(--border-radius);
+  box-shadow: 2px 2px var(--color-black);
+  opacity: 0;
+  transform: scale(1);
+  transition: inherit;
+  touch-action: none;
+  pointer-events: none;
+}
+
+ul.checklist > li.dragging::before {
+  opacity: 1;
+  transform: scale(1.01);
+}
+
+ul.checklist > li > .drag {
+  position: absolute;
+  top: 50%;
+  right: 2vw;
+  transform: translateY(-50%) scale(1);
+  transition: transform 250ms var(--ease), opacity 100ms var(--ease);
+}
+
+@media (hover: hover) {
+  ul.checklist > li > .drag {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+
+  ul.checklist > li:hover > .drag,
+  ul.checklist > li > .drag:focus {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
 }
 
 button.checklist-toggler {
   position: absolute;
   top: 50%;
-  left: calc(2vw * -1);
+  left: 2vw;
   transform: translateY(-50%);
   width: 2vw;
   height: 2vw;
   border: 1px solid var(--color-black);
   border-radius: 3px;
   background: var(--color-white);
+  padding: 0;
 }
 
-button.checklist-toggler > span {
+button.checklist-toggler > span,
+button.drag > span {
   display: none;
   height: 0;
   width: 0;
@@ -100,7 +146,35 @@ button.checklist-toggler > span {
   opacity: 0;
 }
 
+button.drag {
+  position: relative;
+  background: none;
+  border: none;
+  height: 1.5vw;
+  width: 1.5vw;
+  padding: 5px;
+  cursor: grab;
+}
+
+button.drag:active {
+  cursor: grabbing;
+}
+
+button.drag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-black);
+  -webkit-mask-image: url(../images/drag.svg);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+
 textarea.checklist-item {
+  position: relative;
   display: block;
   width: 100%;
   min-height: calc(var(--font-ml) * 1.4);
@@ -109,4 +183,5 @@ textarea.checklist-item {
   border: none;
   resize: none;
   overflow-y: hidden;
+  z-index: 1;
 }
