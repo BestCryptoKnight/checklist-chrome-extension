@@ -5,7 +5,9 @@ const root = document.querySelector('.checklist')
 let all = localStorage.getItem('all_list')
 let today = localStorage.getItem('today_list')
 
-let items = []
+// Array of items with an additional property, isInOriginalPosition
+// for us to animate.
+let currentItems = []
 let isListAnimating = false
 
 export default function setupChecklist() {
@@ -53,7 +55,7 @@ export default function setupChecklist() {
   // @ts-ignore
   const listItems = Array.from(root.querySelectorAll('li'))
 
-  items = listItems.forEach(i => {
+  listItems.forEach(i => {
     const [textarea, toggler, dragger] = [
       i.querySelector('textarea'),
       i.querySelector('button.checklist-toggler'),
@@ -117,7 +119,6 @@ function addEventListenersToTextarea(textarea) {
 
           target.parentElement.setAttribute('data-id', item.id)
           // @ts-ignore
-          today.push(item)
 
           updateStorage('today_list', 'ADD', item)
 
@@ -206,6 +207,9 @@ function addEventListenersToDragger(dragger) {
 
       target.current.classList.add('dragging')
       target.current.style.transition = `none`
+
+      const rest = root.querySelectorAll('li[data-id]:not(.dragging)')
+      console.log('rest', rest)
 
       pointerOffset.x = e.clientX
       pointerOffset.y = e.clientY
@@ -321,7 +325,7 @@ function updateStorage(key, action, value) {
       break
   }
 
-  console.log('items', items)
+  console.log('currentItems', currentItems)
 
   localStorage.setItem(key, JSON.stringify(items))
 }

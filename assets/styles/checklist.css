@@ -111,6 +111,10 @@ ul.checklist > li > .drag {
   transition: transform 250ms var(--ease), opacity 100ms var(--ease);
 }
 
+ul.checklist > li:last-of-type > .drag {
+  display: none;
+}
+
 @media (hover: hover) {
   ul.checklist > li > .drag {
     opacity: 0;
