@@ -8,25 +8,31 @@ let storageIds = {
   all: 'all_list',
   today: 'today_list',
 }
-let all = localStorage.getItem(storageIds.all)
-let today = localStorage.getItem(storageIds.today)
 
-let isListAnimating = false
+let listItems = []
+
+const state = {
+  isListAnimating: false,
+  currentDraggingIndex: null,
+}
 
 export default function setupChecklist() {
   // 1. Setup
   // Get all list items from localStorage.
   // Defaults to empty array if errored.
+  let all = localStorage.getItem(storageIds.all)
+  let today = localStorage.getItem(storageIds.today)
   try {
     if (all === null) {
       localStorage.setItem(storageIds.all, '[]')
       all = JSON.parse('[]')
     } else {
-      all = JSON.parse(all)
+      all = JSON.parse('[]')
     }
     if (today === null) {
       localStorage.setItem(storageIds.today, '[]')
-      today = JSON.parse('[]')
+      // @ts-ignore
+      today = []
     } else {
       today = JSON.parse(today)
     }
@@ -39,10 +45,18 @@ export default function setupChecklist() {
     today = JSON.parse('[]')
   }
 
+  // Map today values to have a property, isInOriginalPosition, which
+  // will let us know how to translate the element.
+  // @ts-ignore
+  listItems = today.map(t => ({
+    item: t,
+    isInOriginalPosition: true,
+  }))
+
   // 2. Render each item into the dom
   // @ts-ignore
-  const markup = today.reduce((acc, curr) => {
-    acc.push(getListItemMarkup(curr.id, curr.content, true))
+  const markup = listItems.reduce((acc, curr) => {
+    acc.push(getListItemMarkup(curr.item.id, curr.item.content, true))
     return acc
   }, [])
 
@@ -56,9 +70,7 @@ export default function setupChecklist() {
   //   3c. toggle visibilty back on
 
   // @ts-ignore
-  const listItems = Array.from(root.querySelectorAll('li'))
-
-  listItems.forEach(i => {
+  Array.from(root.querySelectorAll('li')).forEach(i => {
     const [textarea, toggler, dragger] = [
       i.querySelector('textarea'),
       i.querySelector('button.checklist-toggler'),
@@ -117,14 +129,12 @@ function addEventListenersToTextarea(textarea) {
             ListItem({
               id: dataId,
               content: value,
-              isComplete: false,
             })
           )
         } else {
           // If there's no dataId, we need to add the value to localStorage.
           const item = ListItem({
             content: value,
-            isComplete: false,
           })
 
           target.parentElement.setAttribute('data-id', item.id)
@@ -181,7 +191,6 @@ function addEventListenersToTextarea(textarea) {
         ListItem({
           id: dataId,
           content: value,
-          isComplete: false,
         })
       )
     }
@@ -195,24 +204,31 @@ function addEventListenersToTextarea(textarea) {
 }
 
 function addEventListenersToDragger(dragger) {
-  // On mouse down, we'll cache the pointerOffset, so when
-  // dragging, we can calculate the dragging from where the
-  // mouse was initially clicked.
   const target = {
     current: null,
     rest: null,
   }
+  // On mouse down, we'll cache the pointerOffset, so when
+  // dragging, we can calculate the dragging from where the
+  // mouse was initially clicked.
   const pointerOffset = {
     x: 0,
     y: 0,
   }
 
   function handleMouseDown(e) {
-    if (!isListAnimating) {
-      isListAnimating = true
+    if (!state.isListAnimating) {
+      state.isListAnimating = true
 
       const parent = e.target.parentElement
       target.current = parent
+
+      // @ts-ignore
+      state.currentDraggingIndex = listItems.findIndex(
+        i => i.item.id === parent.getAttribute('data-id')
+      )
+
+      console.log('state', state)
 
       target.current.classList.add('dragging')
       target.current.style.transition = `none`
@@ -236,6 +252,58 @@ function addEventListenersToDragger(dragger) {
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('click', endDrag)
     }
+
+    // requestAnimationFrame to cache new position and translate elements
+    // to updated positions.
+    calculateIntersection()
+  }
+
+  let intersectionAnimationId = null
+  // Flag to check if calculating intersection if rAF loops back before
+  // our calculations are finished.
+  let isCalculatingIntersection = false
+  let isTransitioningIntersection = false
+  function calculateIntersection() {
+    if (!isCalculatingIntersection) {
+      isCalculatingIntersection = true
+      target.rest.forEach(el => {
+        // Check if current dragged item is intersecting the center of target.
+        const {
+          top: oTop,
+          bottom: oBottom,
+          left: oLeft,
+          right: oRight,
+          height: oHeight,
+          width: oWidth,
+        } = el.getBoundingClientRect()
+
+        const {
+          top,
+          bottom,
+          left,
+          right,
+        } = target.current.getBoundingClientRect()
+
+        const halfHeight = oHeight / 2
+
+        if (!isTransitioningIntersection) {
+          if (
+            top <= oBottom - halfHeight &&
+            bottom >= oTop + halfHeight &&
+            left <= oRight - oWidth / 2 &&
+            right >= oLeft + oWidth / 2
+          ) {
+            isTransitioningIntersection = true
+            console.log('intersecting', el)
+            // 1. Get all elements between current.target and the intersected element.
+          }
+        }
+      })
+
+      isCalculatingIntersection = false
+    }
+
+    intersectionAnimationId = requestAnimationFrame(calculateIntersection)
   }
 
   // Handles:
@@ -258,18 +326,13 @@ function addEventListenersToDragger(dragger) {
     target.current.style.transition = 'none'
     target.current.style.zIndex = 2
 
-    // requestAnimationFrame to cache new position and translate elements
-    // to updated positions.
-
     // Scroll window up/down based on position of dragged item.
     const shouldScrollUp = e.clientY < 100
     const shouldScrollDown = e.clientY > innerHeight - 100
-    function isAtTopOfPage() {
-      return window.pageYOffset <= 0
-    }
-    function isAtBottomOfPage() {
-      return window.innerHeight + window.scrollY >= document.body.offsetHeight
-    }
+
+    const isAtTopOfPage = () => window.pageYOffset <= 0
+    const isAtBottomOfPage = () =>
+      window.innerHeight + window.scrollY >= document.body.offsetHeight
 
     if (shouldScrollUp && !isAtTopOfPage()) {
       scroll(-1)
@@ -330,16 +393,18 @@ function addEventListenersToDragger(dragger) {
 
     window.removeEventListener('click', endDrag)
     window.removeEventListener('mousemove', handleMouseMove)
-    // Clear scroll animation and set translateOffset back to 0.
+    // Cleanup - clear rAF animations
+    // Set translateOffset back to 0 since scroll is over.
     cancelAnimationFrame(scrollAnimationId)
     translateOffsetAmount = 0
+    cancelAnimationFrame(intersectionAnimationId)
 
     setTimeout(() => {
       target.current.removeAttribute('class')
       target.current.style.zIndex = 'initial'
       target.current.style.transition = `all 250ms var(--ease)`
 
-      isListAnimating = false
+      state.isListAnimating = false
     }, 250)
   }
 
@@ -389,16 +454,16 @@ function getListItemMarkup(id, value, isInitialMount) {
   return li
 }
 
-function ListItem({ id = getRandomId(), content = '', isComplete = false }) {
+function ListItem({ id = getRandomId(), content = '' }) {
   return {
     id,
     content,
-    isComplete,
   }
 }
 
 function updateStorage(key, action, value) {
   let items = JSON.parse(localStorage.getItem(key))
+  let shouldUpdate = true
 
   switch (action) {
     case 'DELETE':
@@ -406,7 +471,14 @@ function updateStorage(key, action, value) {
       break
     case 'UPDATE':
       items = items.map(i => {
+        if (value.id === null) {
+          shouldUpdate = false
+        }
         if (i.id === value.id) {
+          // If content is the same, no need to update.
+          if (i.content === value.content || i.content.length === 0) {
+            shouldUpdate = false
+          }
           i = value
         }
         return i
@@ -417,5 +489,12 @@ function updateStorage(key, action, value) {
       break
   }
 
-  localStorage.setItem(key, JSON.stringify(items))
+  if (shouldUpdate) {
+    listItems = items.map(i => ({
+      item: i,
+      isInOriginalPosition: true,
+    }))
+
+    localStorage.setItem(key, JSON.stringify(items))
+  }
 }
