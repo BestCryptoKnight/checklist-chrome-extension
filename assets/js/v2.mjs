@@ -13,6 +13,7 @@ let storageIds = {
 
 const state = {
   items: [],
+  originalIndexOfCurrentDraggingElement: null,
   currentDraggingIndex: null,
   // When an element gets clicked and dragged, we'll cache its original position.
   // This will let us know how much to translate each element that it intersects.
@@ -112,8 +113,7 @@ function addEventListenersToTextarea(textarea) {
       if (value.length > 0) {
         if (dataId) {
           // If there's a dataId, we need to update the value in localStorage.
-          updateStorage(
-            storageIds.today,
+          updateListItems(
             'UPDATE',
             ListItem({
               id: dataId,
@@ -129,7 +129,7 @@ function addEventListenersToTextarea(textarea) {
           target.parentElement.setAttribute('data-id', item.id)
           // @ts-ignore
 
-          updateStorage(storageIds.today, 'ADD', item)
+          updateListItems('ADD', item)
 
           // Add new editor to root.
           addNewEditor()
@@ -138,8 +138,7 @@ function addEventListenersToTextarea(textarea) {
         if (dataId) {
           // If there's a dataId, that means it's saved in localStorage.
           // Delete this item from localStorage since it's empty now.
-          updateStorage(
-            storageIds.today,
+          updateListItems(
             'DELETE',
             ListItem({
               id: dataId,
@@ -164,8 +163,7 @@ function addEventListenersToTextarea(textarea) {
     ]
 
     if (value.length === 0 && dataId) {
-      updateStorage(
-        storageIds.today,
+      updateListItems(
         'DELETE',
         ListItem({
           id: dataId,
@@ -174,8 +172,7 @@ function addEventListenersToTextarea(textarea) {
 
       root.removeChild(parentElement)
     } else {
-      updateStorage(
-        storageIds.today,
+      updateListItems(
         'UPDATE',
         ListItem({
           id: dataId,
@@ -209,6 +206,8 @@ function addEventListenersToDragger(dragger) {
     state.currentDraggingIndex = state.items.findIndex(
       i => i.item.id === currentItem.getAttribute('data-id')
     )
+
+    state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
 
     const cachedPosition = currentItem.getBoundingClientRect()
     state.currentDraggedElementCachedPosition = {
@@ -248,6 +247,7 @@ function addEventListenersToDragger(dragger) {
   // Flag to check if calculating intersection if rAF loops back before
   // our calculations are finished.
   let isTransitioningIntersection = false
+  let translateDirection = null
   function calculateIntersection() {
     restOfItems.forEach(el => {
       if (!isTransitioningIntersection) {
@@ -304,7 +304,7 @@ function addEventListenersToDragger(dragger) {
           }
           // 3a. Then, calculate the updated top position, relative to the
           //     top of the screen, of the open index.
-          const translateDirection =
+          translateDirection =
             indexIntersected > state.currentDraggingIndex ? 'up' : 'down'
 
           const translateAmt =
@@ -435,7 +435,7 @@ function addEventListenersToDragger(dragger) {
 
     let translateY = 0
 
-    if (state.currentDraggingIndex !== null) {
+    if (state.topOfOpenIndex !== null) {
       translateY =
         state.topOfOpenIndex -
         state.currentDraggedElementCachedPosition.topRelativeToDocument
@@ -461,11 +461,38 @@ function addEventListenersToDragger(dragger) {
     cancelAnimationFrame(intersectionAnimationId)
     state.currentDraggedElementCachedPosition = null
 
+    console.log('state', state)
+
     setTimeout(() => {
       currentItem.removeAttribute('class')
       currentItem.style.zIndex = 'initial'
       currentItem.style.transition = `all ${TRANSITION_DURATION}ms var(--ease)`
       // Render updated list into DOM
+      const allElements = root.querySelectorAll('li[data-id]')
+      console.log('allElements', allElements)
+
+      const elementToMove =
+        allElements[state.originalIndexOfCurrentDraggingElement]
+
+      const elementToInsertBefore =
+        state.originalIndexOfCurrentDraggingElement < state.currentDraggingIndex
+          ? allElements[state.currentDraggingIndex + 1]
+          : allElements[state.currentDraggingIndex]
+
+      elementToMove.parentNode.insertBefore(
+        elementToMove,
+        elementToInsertBefore === undefined
+          ? allElements[state.currentDraggingIndex].nextSibling
+          : elementToInsertBefore
+      )
+
+      // Reset state.items array so all items are now in their updated positions.
+      state.items.forEach(i => {
+        i.isInOriginalPosition = true
+        i.el.removeAttribute('style')
+      })
+
+      updateListItems('REORDER', state.items)
     }, TRANSITION_DURATION)
   }
 
@@ -522,13 +549,14 @@ function ListItem({ id = getRandomId(), content = '' }) {
   }
 }
 
-function updateStorage(key, action, value) {
-  let items = JSON.parse(localStorage.getItem(key))
+function updateListItems(action, value) {
+  let items = JSON.parse(localStorage.getItem(storageIds.today))
   let shouldUpdate = true
 
   switch (action) {
     case 'DELETE':
       items = items.filter(i => i.id !== value.id)
+      updateStateItems(items)
       break
     case 'UPDATE':
       items = items.map(i => {
@@ -544,20 +572,34 @@ function updateStorage(key, action, value) {
         }
         return i
       })
-
+      updateStateItems(items)
       break
     case 'ADD':
       items.push(value)
       break
+    case 'REORDER':
+      items = value.map(i => i.item)
+      updateStateItems(items)
+      break
   }
 
-  if (shouldUpdate) {
+  function updateStateItems(items) {
     state.items = items.map(i => ({
       item: i,
       isInOriginalPosition: true,
       el: root.querySelector(`[data-id="${i.id}"]`),
     }))
-
-    localStorage.setItem(key, JSON.stringify(items))
   }
+
+  if (shouldUpdate) {
+    saveToLocalStorage(storageIds.today, JSON.stringify(items))
+  }
+}
+
+function saveToLocalStorage(key, value) {
+  localStorage.setItem(key, value)
+}
+
+function pollUpdate() {
+  console.log('poll new data')
 }
