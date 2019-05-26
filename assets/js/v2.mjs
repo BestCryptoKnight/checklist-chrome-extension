@@ -35,20 +35,34 @@ export default function setupChecklist() {
     localStorage.setItem(storageIds.today, '[]')
   }
 
-  // 2. Render each item into the dom
-  const markup = today.reduce((acc, curr) => {
-    acc.push(getListItemMarkup(curr.id, curr.content, true))
+  renderItemsToDOM(today, true)
+
+  // Add an event listener to resize textareas on resize.
+  window.addEventListener('resize', () => {
+    // @ts-ignore
+    const textareas = Array.from(root.querySelectorAll('textarea'))
+    textareas.forEach(t => handleResize(t))
+  })
+
+  // Poll for updates when user leaves window and comes back.
+  setInterval(pollUpdate, 300)
+}
+
+function renderItemsToDOM(items, initialMount) {
+  root.innerHTML = ''
+  const markup = items.reduce((acc, curr) => {
+    acc.push(getListItemMarkup(curr.id, curr.content, initialMount))
     return acc
   }, [])
 
   // Shift new editor to end.
-  markup.push(getListItemMarkup(null, null, true))
+  markup.push(getListItemMarkup(null, null, initialMount))
   markup.forEach(m => root.appendChild(m))
 
   // Map today values to have a property, isInOriginalPosition, which
   // will let us know how to translate the element.
   // @ts-ignore
-  state.items = today.map(t => ({
+  state.items = items.map(t => ({
     item: t,
     isInOriginalPosition: true,
     el: root.querySelector(`[data-id="${t.id}"]`),
@@ -69,13 +83,6 @@ export default function setupChecklist() {
 
     addEventListenersToTextarea(textarea)
     addEventListenersToDragger(dragger)
-  })
-
-  // Add an event listener to resize textareas on resize.
-  window.addEventListener('resize', () => {
-    // @ts-ignore
-    const textareas = Array.from(root.querySelectorAll('textarea'))
-    textareas.forEach(t => handleResize(t))
   })
 }
 
@@ -202,45 +209,47 @@ function addEventListenersToDragger(dragger) {
   }
 
   function handleMouseDown(e) {
-    // @ts-ignore
-    state.currentDraggingIndex = state.items.findIndex(
-      i => i.item.id === currentItem.getAttribute('data-id')
-    )
+    if (!state.preventEvents) {
+      // @ts-ignore
+      state.currentDraggingIndex = state.items.findIndex(
+        i => i.item.id === currentItem.getAttribute('data-id')
+      )
 
-    state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
+      state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
 
-    const cachedPosition = currentItem.getBoundingClientRect()
-    state.currentDraggedElementCachedPosition = {
-      height: cachedPosition.height,
-      topRelativeToDocument: cachedPosition.top + window.pageYOffset,
-      yRelativeToDocument: cachedPosition.y + window.pageYOffset,
+      const cachedPosition = currentItem.getBoundingClientRect()
+      state.currentDraggedElementCachedPosition = {
+        height: cachedPosition.height,
+        topRelativeToDocument: cachedPosition.top + window.pageYOffset,
+        yRelativeToDocument: cachedPosition.y + window.pageYOffset,
+      }
+
+      currentItem.classList.add('dragging')
+      currentItem.style.transition = `none`
+
+      // @ts-ignore
+      restOfItems = Array.from(
+        root.querySelectorAll('li[data-id]:not(.dragging)')
+      )
+
+      restOfItems.forEach(el => {
+        el.style.opacity = '.25'
+        el.style.transition = 'none'
+        el.style.animation = ''
+        el.style.pointerEvents = 'none'
+        el.style.touchAction = 'none'
+      })
+
+      pointerOffset.x = e.clientX
+      pointerOffset.y = e.clientY
+
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('click', endDrag)
+
+      // requestAnimationFrame to cache new position and translate elements
+      // to updated positions.
+      calculateIntersection()
     }
-
-    currentItem.classList.add('dragging')
-    currentItem.style.transition = `none`
-
-    // @ts-ignore
-    restOfItems = Array.from(
-      root.querySelectorAll('li[data-id]:not(.dragging)')
-    )
-
-    restOfItems.forEach(el => {
-      el.style.opacity = '.25'
-      el.style.transition = 'none'
-      el.style.animation = ''
-      el.style.pointerEvents = 'none'
-      el.style.touchAction = 'none'
-    })
-
-    pointerOffset.x = e.clientX
-    pointerOffset.y = e.clientY
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('click', endDrag)
-
-    // requestAnimationFrame to cache new position and translate elements
-    // to updated positions.
-    calculateIntersection()
   }
 
   let intersectionAnimationId = null
@@ -461,15 +470,12 @@ function addEventListenersToDragger(dragger) {
     cancelAnimationFrame(intersectionAnimationId)
     state.currentDraggedElementCachedPosition = null
 
-    console.log('state', state)
-
     setTimeout(() => {
       currentItem.removeAttribute('class')
       currentItem.style.zIndex = 'initial'
       currentItem.style.transition = `all ${TRANSITION_DURATION}ms var(--ease)`
       // Render updated list into DOM
       const allElements = root.querySelectorAll('li[data-id]')
-      console.log('allElements', allElements)
 
       const elementToMove =
         allElements[state.originalIndexOfCurrentDraggingElement]
@@ -600,6 +606,19 @@ function saveToLocalStorage(key, value) {
   localStorage.setItem(key, value)
 }
 
+let shouldPollForUpdate = false
 function pollUpdate() {
-  console.log('poll new data')
+  if (shouldPollForUpdate && document.hasFocus()) {
+    const items = JSON.parse(localStorage.getItem(storageIds.today))
+
+    if (
+      JSON.stringify(items) !== JSON.stringify(state.items.map(i => i.item))
+    ) {
+      console.log('update')
+      renderItemsToDOM(items, false)
+    }
+    shouldPollForUpdate = false
+  } else if (!document.hasFocus()) {
+    if (!shouldPollForUpdate) shouldPollForUpdate = true
+  }
 }
