@@ -12,14 +12,14 @@ let storageIds = {
 }
 
 const state = {
-  listItems: [],
-  isListAnimating: false,
+  items: [],
+  isItemAnimatingToBase: false,
   // When an element gets clicked and dragged, we'll cache its original position.
   // This will let us know how much to translate each element that it intersects.
   currentDraggedElementCachedPosition: null,
   // Each time an element is intersected, we'll cache its position, so if the user
   // drops the target, it'll translate to the cached position.
-  // currentOpenIndexCachedPosition: null,
+  currentOpenIndexCachedPosition: null,
   currentDraggingIndex: null,
 }
 
@@ -27,33 +27,15 @@ export default function setupChecklist() {
   // 1. Setup
   // Get all list items from localStorage.
   // Defaults to empty array if errored.
-  let all = localStorage.getItem(storageIds.all)
-  let today = localStorage.getItem(storageIds.today)
+  let today
   try {
-    if (all === null) {
-      localStorage.setItem(storageIds.all, '[]')
-      all = JSON.parse('[]')
-    } else {
-      all = JSON.parse('[]')
-    }
-    if (today === null) {
-      localStorage.setItem(storageIds.today, '[]')
-      // @ts-ignore
-      today = []
-    } else {
-      today = JSON.parse(today)
-    }
+    today = JSON.parse(localStorage.getItem(storageIds.today))
   } catch (err) {
-    // Reset if errored.
-    localStorage.setItem(storageIds.all, '[]')
+    today = []
     localStorage.setItem(storageIds.today, '[]')
-
-    all = JSON.parse('[]')
-    today = JSON.parse('[]')
   }
 
   // 2. Render each item into the dom
-  // @ts-ignore
   const markup = today.reduce((acc, curr) => {
     acc.push(getListItemMarkup(curr.id, curr.content, true))
     return acc
@@ -66,7 +48,7 @@ export default function setupChecklist() {
   // Map today values to have a property, isInOriginalPosition, which
   // will let us know how to translate the element.
   // @ts-ignore
-  state.listItems = today.map(t => ({
+  state.items = today.map(t => ({
     item: t,
     isInOriginalPosition: true,
     el: root.querySelector(`[data-id="${t.id}"]`),
@@ -212,10 +194,9 @@ function addEventListenersToTextarea(textarea) {
 }
 
 function addEventListenersToDragger(dragger) {
-  const target = {
-    current: null,
-    rest: null,
-  }
+  let currentItem = dragger.parentElement
+  let restOfItems = null
+
   // On mouse down, we'll cache the pointerOffset, so when
   // dragging, we can calculate the dragging from where the
   // mouse was initially clicked.
@@ -225,46 +206,41 @@ function addEventListenersToDragger(dragger) {
   }
 
   function handleMouseDown(e) {
-    if (!state.isListAnimating) {
-      state.isListAnimating = true
+    // @ts-ignore
+    state.currentDraggingIndex = state.items.findIndex(
+      i => i.item.id === currentItem.getAttribute('data-id')
+    )
 
-      const parent = e.target.parentElement
-      target.current = parent
-
-      // @ts-ignore
-      state.currentDraggingIndex = state.listItems.findIndex(
-        i => i.item.id === parent.getAttribute('data-id')
-      )
-
-      const draggedElPosition = parent.getBoundingClientRect()
-      state.currentDraggedElementCachedPosition = {
-        height: draggedElPosition.height,
-        top: draggedElPosition.height + window.pageYOffset,
-        y: draggedElPosition.height + window.pageYOffset,
-      }
-
-      target.current.classList.add('dragging')
-      target.current.style.transition = `none`
-
-      // @ts-ignore
-      target.rest = Array.from(
-        root.querySelectorAll('li[data-id]:not(.dragging)')
-      )
-
-      target.rest.forEach(el => {
-        el.style.opacity = '.25'
-        el.style.transition = 'none'
-        el.style.animation = ''
-        el.style.pointerEvents = 'none'
-        el.style.touchAction = 'none'
-      })
-
-      pointerOffset.x = e.clientX
-      pointerOffset.y = e.clientY
-
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('click', endDrag)
+    const cachedPosition = currentItem.getBoundingClientRect()
+    state.currentDraggedElementCachedPosition = {
+      height: cachedPosition.height,
+      topRelativeToScreen: cachedPosition.top,
+      yRelativeToScreen: cachedPosition.y,
+      topRelativeToDocument: cachedPosition.top + window.pageYOffset,
+      yRelativeToDocument: cachedPosition.y + window.pageYOffset,
     }
+
+    currentItem.classList.add('dragging')
+    currentItem.style.transition = `none`
+
+    // @ts-ignore
+    restOfItems = Array.from(
+      root.querySelectorAll('li[data-id]:not(.dragging)')
+    )
+
+    restOfItems.forEach(el => {
+      el.style.opacity = '.25'
+      el.style.transition = 'none'
+      el.style.animation = ''
+      el.style.pointerEvents = 'none'
+      el.style.touchAction = 'none'
+    })
+
+    pointerOffset.x = e.clientX
+    pointerOffset.y = e.clientY
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('click', endDrag)
 
     // requestAnimationFrame to cache new position and translate elements
     // to updated positions.
@@ -276,8 +252,8 @@ function addEventListenersToDragger(dragger) {
   // our calculations are finished.
   let isTransitioningIntersection = false
   function calculateIntersection() {
-    if (!isTransitioningIntersection) {
-      target.rest.forEach(el => {
+    restOfItems.forEach(el => {
+      if (!isTransitioningIntersection) {
         // Check if current dragged item is intersecting the center of target.
         const {
           top: oTop,
@@ -288,12 +264,7 @@ function addEventListenersToDragger(dragger) {
           width: oWidth,
         } = el.getBoundingClientRect()
 
-        const {
-          top,
-          bottom,
-          left,
-          right,
-        } = target.current.getBoundingClientRect()
+        const { top, bottom, left, right } = currentItem.getBoundingClientRect()
 
         const halfHeight = oHeight / 2
 
@@ -303,30 +274,38 @@ function addEventListenersToDragger(dragger) {
           left <= oRight - oWidth / 2 &&
           right >= oLeft + oWidth / 2
         ) {
+          // Toggle flag now that we are intersecting.
           isTransitioningIntersection = true
+
           const dataId = el.getAttribute('data-id')
 
           // 1. Get the index of the intersecting element.
           // @ts-ignore
-          const indexIntersected = state.listItems.findIndex(
+          const indexIntersected = state.items.findIndex(
             i => i.item.id === dataId
           )
           // 2. Calculate which elements need to move.
-          const listItemsToMove =
+          const itemsToShift =
             indexIntersected > state.currentDraggingIndex
-              ? state.listItems.slice(
+              ? state.items.slice(
                   state.currentDraggingIndex + 1,
                   indexIntersected + 1
                 )
-              : state.listItems.slice(
-                  indexIntersected,
-                  state.currentDraggingIndex
-                )
+              : state.items.slice(indexIntersected, state.currentDraggingIndex)
 
           // 3. Before moving, cache the position of the intersected element.
-          const itemIntersected = state.listItems[indexIntersected]
+          const itemIntersectedPosition = state.items[
+            indexIntersected
+          ].el.getBoundingClientRect()
 
-          console.log('itemIntersected', itemIntersected)
+          state.currentOpenIndexCachedPosition = {
+            height: itemIntersectedPosition.height,
+            yRelativeToScreen: itemIntersectedPosition.y + window.pageYOffset,
+            topRelativeToScreen:
+              itemIntersectedPosition.top + window.pageYOffset,
+            yRelativeToDocument: itemIntersectedPosition.y,
+            topRelativeToDocument: itemIntersectedPosition.top,
+          }
 
           const translate = {
             x: 0,
@@ -338,7 +317,8 @@ function addEventListenersToDragger(dragger) {
               ? state.currentDraggedElementCachedPosition.height * -1
               : state.currentDraggedElementCachedPosition.height
 
-          listItemsToMove.forEach(item => {
+          itemsToShift.forEach(item => {
+            console.log('item', item)
             if (item.isInOriginalPosition) {
               item.isInOriginalPosition = false
               item.el.style.transform = `translate3d(0px, ${
@@ -354,7 +334,7 @@ function addEventListenersToDragger(dragger) {
 
           setTimeout(() => {
             // Update list to reflect change
-            let copy = state.listItems.slice()
+            let copy = state.items.slice()
             copy.splice(state.currentDraggingIndex, 1)
 
             let start = copy.slice(0, indexIntersected)
@@ -362,26 +342,24 @@ function addEventListenersToDragger(dragger) {
 
             let final = [
               ...start,
-              state.listItems[state.currentDraggingIndex],
+              state.items[state.currentDraggingIndex],
               ...end,
             ]
 
-            state.listItems = final
+            state.items = final
 
             state.currentDraggingIndex = indexIntersected
 
             isTransitioningIntersection = false
           }, TRANSITION_DURATION / 2)
         }
-      })
-    }
-
+      }
+    })
     intersectionAnimationId = requestAnimationFrame(calculateIntersection)
   }
 
-  // Handles:
-  // 1. Moving the dragged item around
-  // 2. Scrolling window up/down based on the position on the dragged item.
+  // 1. Moves the dragged item around
+  // 2. Scrolls window up/down based on the position on the dragged item.
   let isScrolling = false
   let scrollAnimationId = null
   let translateOffsetAmount = 0
@@ -392,12 +370,12 @@ function addEventListenersToDragger(dragger) {
     }
 
     if (!isScrolling) {
-      target.current.style.transform = `translate3d(${
+      currentItem.style.transform = `translate3d(${
         translate.x
       }px, ${translate.y + translateOffsetAmount}px, 0px)`
     }
-    target.current.style.transition = 'none'
-    target.current.style.zIndex = 2
+    currentItem.style.transition = 'none'
+    currentItem.style.zIndex = 2
 
     // Scroll window up/down based on position of dragged item.
     const shouldScrollUp = e.clientY < 100
@@ -438,7 +416,7 @@ function addEventListenersToDragger(dragger) {
         top: window.pageYOffset + direction * 10,
       })
 
-      target.current.style.transform = `translate3d(${
+      currentItem.style.transform = `translate3d(${
         translate.x
       }px, ${translate.y + translateOffsetAmount}px, 0px)`
 
@@ -453,12 +431,28 @@ function addEventListenersToDragger(dragger) {
 
   function endDrag() {
     // Translate dragged item to new cached position.
-    console.log('endDrag state', state)
+    // top - currentDraggedElement.height + currentOpenIndexCachedPosition.height
 
-    target.current.style.transform = `translate3d(0px, 0px, 0px)`
-    target.current.style.transition = `transform ${TRANSITION_DURATION}ms var(--ease)`
+    let translateY = 0
 
-    target.rest.forEach(el => {
+    if (state.currentOpenIndexCachedPosition) {
+    }
+
+    console.log('translateY', translateY)
+
+    console.log(
+      'state.currentDraggedElementCachedPosition',
+      state.currentDraggedElementCachedPosition
+    )
+    console.log(
+      'state.currentOpenIndexCachedPosition',
+      state.currentOpenIndexCachedPosition
+    )
+
+    currentItem.style.transform = `translate3d(0px, ${translateY}px, 0px)`
+    currentItem.style.transition = `transform ${TRANSITION_DURATION}ms var(--ease)`
+
+    restOfItems.forEach(el => {
       el.style.opacity = '1'
       el.style.transition = 'none'
       el.style.animation = ''
@@ -476,13 +470,10 @@ function addEventListenersToDragger(dragger) {
     state.currentDraggedElementCachedPosition = null
 
     setTimeout(() => {
-      target.current.removeAttribute('class')
-      target.current.style.zIndex = 'initial'
-      target.current.style.transition = `all ${TRANSITION_DURATION}ms var(--ease)`
-
-      state.isListAnimating = false
-
-      // render updated list into DOM
+      currentItem.removeAttribute('class')
+      currentItem.style.zIndex = 'initial'
+      currentItem.style.transition = `all ${TRANSITION_DURATION}ms var(--ease)`
+      // Render updated list into DOM
     }, TRANSITION_DURATION)
   }
 
@@ -561,6 +552,7 @@ function updateStorage(key, action, value) {
         }
         return i
       })
+
       break
     case 'ADD':
       items.push(value)
@@ -568,7 +560,7 @@ function updateStorage(key, action, value) {
   }
 
   if (shouldUpdate) {
-    state.listItems = items.map(i => ({
+    state.items = items.map(i => ({
       item: i,
       isInOriginalPosition: true,
       el: root.querySelector(`[data-id="${i.id}"]`),

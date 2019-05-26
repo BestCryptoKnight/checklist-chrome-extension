@@ -1,4 +1,4 @@
-import setupChecklist from './setup-checklist.mjs'
+import setupChecklist from './v2.mjs'
 
 window.onload = () => init()
 
