@@ -21,6 +21,8 @@ const state = {
   // Each time an element is intersected, we'll cache its new position, so if the user
   // drops the target, it'll translate to the cached position.
   topOfOpenIndex: null,
+  // Prevent double clicks.
+  isMouseDown: false,
 }
 
 export default function setupChecklist() {
@@ -209,52 +211,54 @@ function addEventListenersToDragger(dragger) {
   }
 
   function handleMouseDown(e) {
-    // @ts-ignore
-    state.currentDraggingIndex = state.items.findIndex(
-      i => i.item.id === currentItem.getAttribute('data-id')
-    )
+    if (!state.isMouseDown) {
+      state.isMouseDown = true
+      // @ts-ignore
+      state.currentDraggingIndex = state.items.findIndex(
+        i => i.item.id === currentItem.getAttribute('data-id')
+      )
 
-    state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
+      state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
 
-    const cachedPosition = currentItem.getBoundingClientRect()
-    state.currentDraggedElementCachedPosition = {
-      height: cachedPosition.height,
-      topRelativeToDocument: cachedPosition.top + window.pageYOffset,
-      yRelativeToDocument: cachedPosition.y + window.pageYOffset,
+      const cachedPosition = currentItem.getBoundingClientRect()
+      state.currentDraggedElementCachedPosition = {
+        height: cachedPosition.height,
+        topRelativeToDocument: cachedPosition.top + window.pageYOffset,
+        yRelativeToDocument: cachedPosition.y + window.pageYOffset,
+      }
+
+      currentItem.classList.add('dragging')
+      currentItem.style.transition = `none`
+
+      // @ts-ignore
+      restOfItems = Array.from(
+        root.querySelectorAll('li[data-id]:not(.dragging)')
+      )
+
+      restOfItems.forEach(el => {
+        el.style.opacity = '.25'
+        el.style.transition = 'none'
+        el.style.animation = ''
+        el.style.pointerEvents = 'none'
+        el.style.touchAction = 'none'
+      })
+
+      pointerOffset.x = e.clientX
+      pointerOffset.y = e.clientY
+
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('click', endDrag)
+
+      // requestAnimationFrame to cache new position and translate elements
+      // to updated positions.
+      calculateIntersection()
     }
-
-    currentItem.classList.add('dragging')
-    currentItem.style.transition = `none`
-
-    // @ts-ignore
-    restOfItems = Array.from(
-      root.querySelectorAll('li[data-id]:not(.dragging)')
-    )
-
-    restOfItems.forEach(el => {
-      el.style.opacity = '.25'
-      el.style.transition = 'none'
-      el.style.animation = ''
-      el.style.pointerEvents = 'none'
-      el.style.touchAction = 'none'
-    })
-
-    pointerOffset.x = e.clientX
-    pointerOffset.y = e.clientY
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('click', endDrag)
-
-    // requestAnimationFrame to cache new position and translate elements
-    // to updated positions.
-    calculateIntersection()
   }
 
   let intersectionAnimationId = null
   // Flag to check if calculating intersection if rAF loops back before
   // our calculations are finished.
   let isTransitioningIntersection = false
-  let translateDirection = null
   function calculateIntersection() {
     restOfItems.forEach(el => {
       if (!isTransitioningIntersection) {
@@ -311,7 +315,7 @@ function addEventListenersToDragger(dragger) {
           }
           // 3a. Then, calculate the updated top position, relative to the
           //     top of the screen, of the open index.
-          translateDirection =
+          const translateDirection =
             indexIntersected > state.currentDraggingIndex ? 'up' : 'down'
 
           const translateAmt =
@@ -470,6 +474,7 @@ function addEventListenersToDragger(dragger) {
     state.topOfOpenIndex = null
 
     setTimeout(() => {
+      state.isMouseDown = false
       currentItem.removeAttribute('class')
       currentItem.style.zIndex = 'initial'
       currentItem.style.transition = `all ${TRANSITION_DURATION}ms var(--ease)`
