@@ -209,47 +209,45 @@ function addEventListenersToDragger(dragger) {
   }
 
   function handleMouseDown(e) {
-    if (!state.preventEvents) {
-      // @ts-ignore
-      state.currentDraggingIndex = state.items.findIndex(
-        i => i.item.id === currentItem.getAttribute('data-id')
-      )
+    // @ts-ignore
+    state.currentDraggingIndex = state.items.findIndex(
+      i => i.item.id === currentItem.getAttribute('data-id')
+    )
 
-      state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
+    state.originalIndexOfCurrentDraggingElement = state.currentDraggingIndex
 
-      const cachedPosition = currentItem.getBoundingClientRect()
-      state.currentDraggedElementCachedPosition = {
-        height: cachedPosition.height,
-        topRelativeToDocument: cachedPosition.top + window.pageYOffset,
-        yRelativeToDocument: cachedPosition.y + window.pageYOffset,
-      }
-
-      currentItem.classList.add('dragging')
-      currentItem.style.transition = `none`
-
-      // @ts-ignore
-      restOfItems = Array.from(
-        root.querySelectorAll('li[data-id]:not(.dragging)')
-      )
-
-      restOfItems.forEach(el => {
-        el.style.opacity = '.25'
-        el.style.transition = 'none'
-        el.style.animation = ''
-        el.style.pointerEvents = 'none'
-        el.style.touchAction = 'none'
-      })
-
-      pointerOffset.x = e.clientX
-      pointerOffset.y = e.clientY
-
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('click', endDrag)
-
-      // requestAnimationFrame to cache new position and translate elements
-      // to updated positions.
-      calculateIntersection()
+    const cachedPosition = currentItem.getBoundingClientRect()
+    state.currentDraggedElementCachedPosition = {
+      height: cachedPosition.height,
+      topRelativeToDocument: cachedPosition.top + window.pageYOffset,
+      yRelativeToDocument: cachedPosition.y + window.pageYOffset,
     }
+
+    currentItem.classList.add('dragging')
+    currentItem.style.transition = `none`
+
+    // @ts-ignore
+    restOfItems = Array.from(
+      root.querySelectorAll('li[data-id]:not(.dragging)')
+    )
+
+    restOfItems.forEach(el => {
+      el.style.opacity = '.25'
+      el.style.transition = 'none'
+      el.style.animation = ''
+      el.style.pointerEvents = 'none'
+      el.style.touchAction = 'none'
+    })
+
+    pointerOffset.x = e.clientX
+    pointerOffset.y = e.clientY
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('click', endDrag)
+
+    // requestAnimationFrame to cache new position and translate elements
+    // to updated positions.
+    calculateIntersection()
   }
 
   let intersectionAnimationId = null
@@ -469,6 +467,7 @@ function addEventListenersToDragger(dragger) {
     translateOffsetAmount = 0
     cancelAnimationFrame(intersectionAnimationId)
     state.currentDraggedElementCachedPosition = null
+    state.topOfOpenIndex = null
 
     setTimeout(() => {
       currentItem.removeAttribute('class')
@@ -614,7 +613,6 @@ function pollUpdate() {
     if (
       JSON.stringify(items) !== JSON.stringify(state.items.map(i => i.item))
     ) {
-      console.log('update')
       renderItemsToDOM(items, false)
     }
     shouldPollForUpdate = false
