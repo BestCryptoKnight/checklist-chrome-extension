@@ -17,9 +17,9 @@ const state = {
   // When an element gets clicked and dragged, we'll cache its original position.
   // This will let us know how much to translate each element that it intersects.
   currentDraggedElementCachedPosition: null,
-  // Each time an element is intersected, we'll cache its position, so if the user
+  // Each time an element is intersected, we'll cache its new position, so if the user
   // drops the target, it'll translate to the cached position.
-  currentOpenIndexCachedPosition: null,
+  topOfOpenIndex: null,
 }
 
 export default function setupChecklist() {
@@ -213,8 +213,6 @@ function addEventListenersToDragger(dragger) {
     const cachedPosition = currentItem.getBoundingClientRect()
     state.currentDraggedElementCachedPosition = {
       height: cachedPosition.height,
-      topRelativeToScreen: cachedPosition.top,
-      yRelativeToScreen: cachedPosition.y,
       topRelativeToDocument: cachedPosition.top + window.pageYOffset,
       yRelativeToDocument: cachedPosition.y + window.pageYOffset,
     }
@@ -298,32 +296,36 @@ function addEventListenersToDragger(dragger) {
             indexIntersected
           ].el.getBoundingClientRect()
 
-          state.currentOpenIndexCachedPosition = {
+          const currentOpenIndexCachedPosition = {
             height: itemIntersectedPosition.height,
             yRelativeToScreen: itemIntersectedPosition.y + window.pageYOffset,
-            topRelativeToScreen:
+            topRelativeToDocument:
               itemIntersectedPosition.top + window.pageYOffset,
-            yRelativeToDocument: itemIntersectedPosition.y,
-            topRelativeToDocument: itemIntersectedPosition.top,
           }
+          // 3a. Then, calculate the updated top position, relative to the
+          //     top of the screen, of the open index.
+          const translateDirection =
+            indexIntersected > state.currentDraggingIndex ? 'up' : 'down'
 
-          const translate = {
-            x: 0,
-            y: 0,
-          }
-
-          translate.y =
-            indexIntersected > state.currentDraggingIndex
+          const translateAmt =
+            translateDirection === 'up'
               ? state.currentDraggedElementCachedPosition.height * -1
               : state.currentDraggedElementCachedPosition.height
 
+          if (translateDirection === 'down') {
+            state.topOfOpenIndex =
+              currentOpenIndexCachedPosition.topRelativeToDocument
+          } else {
+            state.topOfOpenIndex =
+              currentOpenIndexCachedPosition.topRelativeToDocument +
+              translateAmt +
+              currentOpenIndexCachedPosition.height
+          }
+
           itemsToShift.forEach(item => {
-            console.log('item', item)
             if (item.isInOriginalPosition) {
               item.isInOriginalPosition = false
-              item.el.style.transform = `translate3d(0px, ${
-                translate.y
-              }px, 0px)`
+              item.el.style.transform = `translate3d(0px, ${translateAmt}px, 0px)`
               item.el.style.transition = `transform ${TRANSITION_DURATION /
                 2}ms var(--ease)`
             } else {
@@ -332,8 +334,8 @@ function addEventListenersToDragger(dragger) {
             }
           })
 
+          // Update list to reflect change after transition is complete.
           setTimeout(() => {
-            // Update list to reflect change
             let copy = state.items.slice()
             copy.splice(state.currentDraggingIndex, 1)
 
@@ -429,23 +431,15 @@ function addEventListenersToDragger(dragger) {
 
   function endDrag() {
     // Translate dragged item to new cached position.
-    // top - currentDraggedElement.height + currentOpenIndexCachedPosition.height
+    // newTop = currentOpenIndex.top - heightOfDraggedElemnet + currentDraggedIndex.height
 
     let translateY = 0
 
-    if (state.currentOpenIndexCachedPosition) {
+    if (state.currentDraggingIndex !== null) {
+      translateY =
+        state.topOfOpenIndex -
+        state.currentDraggedElementCachedPosition.topRelativeToDocument
     }
-
-    console.log('translateY', translateY)
-
-    console.log(
-      'state.currentDraggedElementCachedPosition',
-      state.currentDraggedElementCachedPosition
-    )
-    console.log(
-      'state.currentOpenIndexCachedPosition',
-      state.currentOpenIndexCachedPosition
-    )
 
     currentItem.style.transform = `translate3d(0px, ${translateY}px, 0px)`
     currentItem.style.transition = `transform ${TRANSITION_DURATION}ms var(--ease)`
