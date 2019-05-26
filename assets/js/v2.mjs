@@ -13,14 +13,13 @@ let storageIds = {
 
 const state = {
   items: [],
-  isItemAnimatingToBase: false,
+  currentDraggingIndex: null,
   // When an element gets clicked and dragged, we'll cache its original position.
   // This will let us know how much to translate each element that it intersects.
   currentDraggedElementCachedPosition: null,
   // Each time an element is intersected, we'll cache its position, so if the user
   // drops the target, it'll translate to the cached position.
   currentOpenIndexCachedPosition: null,
-  currentDraggingIndex: null,
 }
 
 export default function setupChecklist() {
@@ -268,6 +267,7 @@ function addEventListenersToDragger(dragger) {
 
         const halfHeight = oHeight / 2
 
+        // Current dragged element is at least 50% overlapping with the target.
         if (
           top <= oBottom - halfHeight &&
           bottom >= oTop + halfHeight &&
@@ -340,13 +340,11 @@ function addEventListenersToDragger(dragger) {
             let start = copy.slice(0, indexIntersected)
             let end = copy.slice(indexIntersected)
 
-            let final = [
+            state.items = [
               ...start,
               state.items[state.currentDraggingIndex],
               ...end,
             ]
-
-            state.items = final
 
             state.currentDraggingIndex = indexIntersected
 
