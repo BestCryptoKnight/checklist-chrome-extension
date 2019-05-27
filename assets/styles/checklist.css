@@ -11,6 +11,7 @@ ul.checklist {
 @media (max-width: 768px) {
   ul.checklist {
     width: unset;
+    margin-top: 15%;
   }
 }
 

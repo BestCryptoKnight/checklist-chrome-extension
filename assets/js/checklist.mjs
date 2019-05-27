@@ -31,7 +31,13 @@ export default function setupChecklist() {
   // Defaults to empty array if errored.
   let today
   try {
-    today = JSON.parse(localStorage.getItem(storageIds.today))
+    const data = localStorage.getItem(storageIds.today)
+    if (data === null) {
+      today = [] 
+      localStorage.setItem(storageIds.today, '[]')
+    } else {
+      today = JSON.parse(data)
+    }
   } catch (err) {
     today = []
     localStorage.setItem(storageIds.today, '[]')

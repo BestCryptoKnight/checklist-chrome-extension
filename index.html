@@ -21,23 +21,57 @@
     <link rel="stylesheet" type="text/css" href="./assets/styles/menu.css" />
   </head>
   <body style="opacity: 0; transition: opacity 500ms var(--ease)">
-    <h1 class="hidden">Get $h*t Done! Chrome Extension</h1>
-    <ul class="checklist"></ul>
+    <header>
+      <nav>
+        <button class="menu-toggle">
+          <h2>
+            Menu
+          </h2>
+        </button>
+        <div class="menu-container">
+          <h3>Get $h%t Done!</h3>
+          <ul class="menu">
+            <li class="menu-day">
+              <p>05/29/2019</p>
+              <ul>
+                <li>Do some work</li>
+                <li>Do some work</li>
+                <li>Do some work</li>
+                <li>Do some work</li>
+              </ul>
+            </li>
+            <li class="menu-day">
+              <p>05/29/2019</p>
+              <ul>
+                <li>Do some work</li>
+                <li>Do some work</li>
+                <li>Do some work</li>
+                <li>Do some work</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <h1 class="hidden">Get $h*t Done! Chrome Extension</h1>
+      <ul class="checklist"></ul>
 
-    <div class="date">
-      <span class="day"></span>
-      <span class="year"></span>
-    </div>
-    <ul class="chronograph">
-      <li tabindex="0">
-        <span id="week-remaining"></span>
-        <span class="hover-text">EOW</span>
-      </li>
-      <li tabindex="0">
-        <span id="today-remaining"></span>
-        <span class="hover-text">EOD</span>
-      </li>
-    </ul>
+      <div class="date">
+        <span class="day"></span>
+        <span class="year"></span>
+      </div>
+      <ul class="chronograph">
+        <li tabindex="0">
+          <span id="week-remaining"></span>
+          <span class="hover-text">EOW</span>
+        </li>
+        <li tabindex="0">
+          <span id="today-remaining"></span>
+          <span class="hover-text">EOD</span>
+        </li>
+      </ul>
+    </main>
     <script src="./assets/js/index.js" type="module"></script>
     <script src="/node_modules/focus-visible/dist/focus-visible.min.js"></script>
   </body>

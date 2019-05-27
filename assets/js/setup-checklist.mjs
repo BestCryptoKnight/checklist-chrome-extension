@@ -7,7 +7,6 @@ const TRANSITION_DURATION = 250
 const root = document.querySelector('.checklist')
 
 let storageIds = {
-  all: 'all_list',
   today: 'today_list',
 }
 
@@ -27,15 +26,8 @@ export default function setupChecklist() {
   // 1. Setup
   // Get all list items from localStorage.
   // Defaults to empty array if errored.
-  let all = localStorage.getItem(storageIds.all)
   let today = localStorage.getItem(storageIds.today)
   try {
-    if (all === null) {
-      localStorage.setItem(storageIds.all, '[]')
-      all = JSON.parse('[]')
-    } else {
-      all = JSON.parse('[]')
-    }
     if (today === null) {
       localStorage.setItem(storageIds.today, '[]')
       // @ts-ignore
@@ -45,12 +37,11 @@ export default function setupChecklist() {
     }
   } catch (err) {
     // Reset if errored.
-    localStorage.setItem(storageIds.all, '[]')
     localStorage.setItem(storageIds.today, '[]')
-
-    all = JSON.parse('[]')
     today = JSON.parse('[]')
   }
+
+  console.log('today', today)
 
   // 2. Render each item into the dom
   // @ts-ignore
