@@ -1,27 +1,17 @@
-section.checklists {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  max-width: 1680px;
-  margin: auto;
-  padding: 5%;
-}
-
-@media (max-width: 768px) {
-  section.checklists {
-    grid-template-columns: 1fr;
-  }
-}
-
-div.checklist-container {
-  position: relative;
-}
-
 ul.checklist {
   position: relative;
   list-style: none;
   padding: 0;
   background: var(--color-white);
-  margin-bottom: 5vw;
+  margin: 5% 5% 0 5%;
+  max-width: 1680px;
+  width: 50%;
+}
+
+@media (max-width: 768px) {
+  ul.checklist {
+    width: unset;
+  }
 }
 
 @keyframes slideRightDown {

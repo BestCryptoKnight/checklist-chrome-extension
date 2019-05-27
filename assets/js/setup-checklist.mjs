@@ -407,6 +407,8 @@ function addEventListenersToDragger(dragger) {
     const isAtBottomOfPage = () =>
       window.innerHeight + window.scrollY >= document.body.offsetHeight
 
+    console.log('isAtBottomOfPage', isAtBottomOfPage)
+
     if (shouldScrollUp && !isAtTopOfPage()) {
       scroll(-1)
     }
