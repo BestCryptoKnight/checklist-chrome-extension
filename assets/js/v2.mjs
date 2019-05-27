@@ -154,14 +154,18 @@ function addEventListenersToTextarea(textarea) {
             })
           )
 
-          setTimeout(() => {
-            if (root.contains(target.parentElement)) {
-              root.removeChild(target.parentElement)
-            }
-          }, 0)
+          removeListItemFromDOM(target.parentElement)
         }
       }
     }
+  }
+
+  function removeListItemFromDOM(element) {
+    setTimeout(() => {
+      if (root.contains(element)) {
+        root.removeChild(element)
+      }
+    }, 0)
   }
 
   function handleBlur(e) {
@@ -179,7 +183,7 @@ function addEventListenersToTextarea(textarea) {
         })
       )
 
-      root.removeChild(parentElement)
+      removeListItemFromDOM(parentElement)
     } else {
       updateListItems(
         'UPDATE',
@@ -619,9 +623,21 @@ function pollUpdate() {
       JSON.stringify(items) !== JSON.stringify(state.items.map(i => i.item))
     ) {
       renderItemsToDOM(items, false)
+      state.isMouseDown = false
     }
     shouldPollForUpdate = false
   } else if (!document.hasFocus()) {
-    if (!shouldPollForUpdate) shouldPollForUpdate = true
+    if (!shouldPollForUpdate) {
+      shouldPollForUpdate = true
+      // This will prevent any clicks from happening before the list is updated
+      // in the DOM. For example:
+      // 1. A visitor focuses the browser's search bar while in current tab.
+      // 2. Then opens a new tab and edits the list.
+      // 3. Then tabs back to the previous tab and tries to immediately drag an item.
+      //    We prevent that from happening because the document isn't in focus, so the
+      //    list still hasn't updated. So when they click on a list item, we'll rerender
+      //    the new list, then enable dragging again.
+      state.isMouseDown = true
+    }
   }
 }
