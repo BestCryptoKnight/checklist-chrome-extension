@@ -623,9 +623,9 @@ function pollUpdate() {
       JSON.stringify(items) !== JSON.stringify(state.items.map(i => i.item))
     ) {
       renderItemsToDOM(items, false)
-      state.isMouseDown = false
     }
     shouldPollForUpdate = false
+    state.isMouseDown = false
   } else if (!document.hasFocus()) {
     if (!shouldPollForUpdate) {
       shouldPollForUpdate = true
