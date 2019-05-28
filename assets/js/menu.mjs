@@ -134,8 +134,15 @@ export function updateDaysList(actionType, payload) {
           id: now,
           items: [payload],
         })
+
+        const menu = menuRoot.querySelector('.menu')
+        if (currentDay === undefined) {
+          // If currentDay === undefined, this means we have no days.
+          // This will remove the placeholder text.
+          menu.innerHTML = ''
+        }
         // Append new date to DOM.
-        menuRoot.querySelector('.menu').appendChild(
+        menu.appendChild(
           getItemMarkup({
             id: now,
             items: [payload],

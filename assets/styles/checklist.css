@@ -21,7 +21,7 @@ ul.checklist {
     transform: scaleY(1);
   }
   100% {
-    opacity: 0; 
+    opacity: 0;
     transform: scaleY(1);
   }
 }
@@ -82,7 +82,7 @@ ul.checklist > li.bye-bye {
 }
 
 ul.checklist > li.bye-bye button.checklist-toggler::after {
-  transform: scaleY(1); 
+  transform: scaleY(1);
 }
 
 ul.checklist > li::before {
@@ -148,7 +148,7 @@ button.checklist-toggler {
 }
 
 button.checklist-toggler:active::before {
-  opacity: .25;
+  opacity: 0.25;
 }
 
 button.checklist-toggler::before,

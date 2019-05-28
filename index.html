@@ -19,6 +19,11 @@
       href="./assets/styles/chronograph.css"
     />
     <link rel="stylesheet" type="text/css" href="./assets/styles/menu.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./assets/styles/settings.css"
+    />
   </head>
   <body style="opacity: 0; transition: opacity 500ms var(--ease)">
     <header>
@@ -30,8 +35,8 @@
         </button>
         <div class="menu-container">
           <h3>Get $h%t Done!</h3>
-          <ul class="menu">
-          </ul>
+          <ul class="menu"></ul>
+          <div class="settings">settings</div>
         </div>
       </nav>
     </header>
@@ -40,16 +45,16 @@
       <ul class="checklist"></ul>
 
       <div class="date">
-      <ul class="chronograph">
-        <li tabindex="0">
-          <span class="hover-text">EOW</span>
-          <span id="week-remaining"></span>
-        </li>
-        <li tabindex="0">
-          <span class="hover-text">EOD</span>
-          <span id="today-remaining"></span>
-        </li>
-      </ul>
+        <ul class="chronograph">
+          <li tabindex="0">
+            <span class="hover-text">EOW</span>
+            <span id="week-remaining"></span>
+          </li>
+          <li tabindex="0">
+            <span class="hover-text">EOD</span>
+            <span id="today-remaining"></span>
+          </li>
+        </ul>
         <span class="year"></span>
         <span class="day"></span>
       </div>
