@@ -5,7 +5,7 @@ const main = document.querySelector('main')
 const state = {
   days: [],
   isMenuOpen: false,
-  howManyDaysToShow: 5,
+  howManyDaysToShow: 7,
 }
 
 /*
@@ -126,7 +126,6 @@ export function updateDaysList(actionType, payload) {
   const now = new Date().toLocaleDateString()
 
   // Update state.days.
-  console.log('actionType', actionType, 'payload', payload, now)
   const currentDay = state.days[state.days.length - 1]
   switch (actionType) {
     case 'ADD': {
@@ -158,7 +157,9 @@ export function updateDaysList(actionType, payload) {
       throw new Error(`No actionType of ${actionType} found.`)
   }
 
-  localStorage.setItem('all_days', JSON.stringify(state.days))
-
-  // Update localStorage to reflect state.days
+  localStorage.setItem(
+    'all_days',
+    // Only save the previous (state.howManyDaysToShow) number of days.
+    JSON.stringify(state.days.slice(state.howManyDaysToShow * -1))
+  )
 }
