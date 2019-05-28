@@ -1,11 +1,7 @@
 ul.chronograph {
   list-style: none;
-  position: fixed;
-  bottom: 0;
-  left: 7%;
   display: grid;
   grid-gap: 0.5vw;
-  margin-bottom: 2vw;
   padding: 0;
   font-size: var(--font-small);
 }
@@ -13,8 +9,8 @@ ul.chronograph {
 ul.chronograph > li {
   position: relative;
   display: grid;
-  grid-template-columns: calc(var(--font-small) * 6) auto;
-  grid-gap: 0.5vw;
+  grid-template-columns: calc(var(--font-small) * 8) auto;
+  grid-gap: 1vw;
   padding: 5px;
   margin: -5px;
   text-shadow: 1px 0px var(--color-white);
@@ -44,6 +40,7 @@ ul.chronograph > li .hover-text,
 ul.chronograph > li #week-remaining,
 ul.chronograph > li #today-remaining {
   background: var(--color-white);
+  text-align: end;
 }
 
 @media (hover: hover) {

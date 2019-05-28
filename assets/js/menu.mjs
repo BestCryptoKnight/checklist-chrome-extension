@@ -4,15 +4,27 @@ const main = document.querySelector('main')
 
 const state = {
   days: [],
-  isMenuOpen: false
+  isMenuOpen: false,
+  howManyDaysToShow: 5
 }
+
+/*
+ * [
+ *   {
+ *     id: '05/29/2019',
+ *     list: [
+ *       'hi',
+ *       'friends',
+ *       'what am i doing w my life?'
+ *     ]
+ *    } 
+ * ]
+ *
+ */
 
 export default function setupMenu() {
   // Add event listener to menuToggler.
   menuToggler.addEventListener('click', handleToggleMenu)
-
-  // Render the latest 5 days into ul.menu 
-  renderDayMarkupToDOM(state.days.slice(-5))
   
   try {
     const data = localStorage.getItem('all_days')
@@ -21,13 +33,17 @@ export default function setupMenu() {
       localStorage.setItem('all_days', '[]')
     } else {
       state.days = JSON.parse(data).map(day => ({
-        day: new Date(day).toLocaleDateString()
+        id: day.id, 
+        items: day.items
       }))
     }
   } catch (err) {
     state.days = []
     localStorage.setItem('all_days', '[]')
   }
+
+  // Render the latest 5 days into ul.menu 
+  renderDayMarkupToDOM(state.days.slice(state.howManyDaysToShow * -1))
 }
 
 function handleToggleMenu(e) {
@@ -65,14 +81,14 @@ function handleKeyDown(e) {
 function renderDayMarkupToDOM(items) {
   const menu = menuRoot.querySelector('ul.menu')
 
-  const markup = items.map(i => getItemMarkup(i))
+  const markup = items.map(i => getItemMarkup(i)).reverse()
 
   if (items.length) {
-    markup.forEach(m => menu.appendChild(m))
+    markup.forEach(m => menu.prepend(m))
   } else {
     let li = document.createElement('li')
     li.innerHTML = `
-      Completed tasks will be listed by day here. 
+      Check off completed tasks as you finish them. Your record will be shown here by each date.
     `
     menu.appendChild(li)
   }
@@ -83,9 +99,9 @@ function getItemMarkup(item) {
   li.setAttribute('class', 'menu-day')
 
   li.innerHTML = `
-    <p>${item.day}</p>  
+    <p>${item.id}</p>  
     <ul>
-      ${item.items.map(i => `<li>${i}</li>`)} 
+      ${item.items.map(i => `<li>${i}</li>`).join('')} 
     </ul>
   `
 
@@ -99,23 +115,24 @@ export function updateDaysList(actionType, payload) {
 
   // Update state.days.
   console.log('actionType', actionType, 'payload', payload, now)
+  const currentDay = state.days[state.days.length - 1]
   switch(actionType) {
     case 'ADD': {
-      console.log('addd this', payload)
-      const currentDay = state.days[state.days.length - 1]
-
-      if (currentDay === undefined) {
-        console.log('add day to list') 
-      } else if (currentDay.id !== now) {
-        console.log('day doesnt exist; add day to list') 
+      if (currentDay === undefined || currentDay.id !== now) {
+        state.days.push({
+          id: now,
+          items: [payload]
+        })
       } else if (currentDay.id === now) {
-        console.log('append value to this currentDay.items') 
+        state.days[state.days.length - 1].items.push(payload)
       }
       break
     }
     default:
       throw new Error(`No actionType of ${actionType} found.`)
   }
+
+  localStorage.setItem('all_days', JSON.stringify(state.days))
 
   // Update localStorage to reflect state.days
 }

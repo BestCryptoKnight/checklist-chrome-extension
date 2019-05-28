@@ -75,10 +75,15 @@ div.menu-container > h3 {
 
 ul.menu {
   padding: 0;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 300px);
   background: none;
   display: grid;
   grid-gap: 1.5vw;
+  overflow: auto;
+}
+
+ul.menu::-webkit-scrollbar {
+  display: none; 
 }
 
 ul.menu > li {
@@ -94,6 +99,7 @@ li.menu-day {
 
 li.menu-day > ul {
   padding: 0;
+  list-style: circle;
 }
 
 li.menu-day > ul > li,

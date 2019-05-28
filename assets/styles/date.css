@@ -1,12 +1,16 @@
 div.date {
   position: fixed;
-  bottom: 0;
-  right: 3%;
+  bottom: 5%;
+  right: 5%;
   color: var(--color-black);
+  display: grid;
+  grid-gap: .5vw;
 }
 
 div.date .year {
-  font-size: var(--font-x-large);
+  display: block;
+  text-align: end;
+  font-size: var(--font-small);
 }
 
 @keyframes fadeInUp {
@@ -19,7 +23,6 @@ div.date .year {
 div.date .day {
   display: block;
   font-size: var(--font-large);
-  margin-right: 1vw;
   text-align: end;
 }
 
