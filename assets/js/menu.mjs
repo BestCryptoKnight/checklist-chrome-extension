@@ -5,7 +5,7 @@ const main = document.querySelector('main')
 const state = {
   days: [],
   isMenuOpen: false,
-  howManyDaysToShow: 5
+  howManyDaysToShow: 5,
 }
 
 /*
@@ -17,7 +17,7 @@ const state = {
  *       'friends',
  *       'what am i doing w my life?'
  *     ]
- *    } 
+ *    }
  * ]
  *
  */
@@ -25,16 +25,16 @@ const state = {
 export default function setupMenu() {
   // Add event listener to menuToggler.
   menuToggler.addEventListener('click', handleToggleMenu)
-  
+
   try {
     const data = localStorage.getItem('all_days')
     if (data === null) {
-      state.days = [] 
+      state.days = []
       localStorage.setItem('all_days', '[]')
     } else {
       state.days = JSON.parse(data).map(day => ({
-        id: day.id, 
-        items: day.items
+        id: day.id,
+        items: day.items,
       }))
     }
   } catch (err) {
@@ -42,14 +42,14 @@ export default function setupMenu() {
     localStorage.setItem('all_days', '[]')
   }
 
-  // Render the latest 5 days into ul.menu 
+  // Render the latest 5 days into ul.menu
   renderDayMarkupToDOM(state.days.slice(state.howManyDaysToShow * -1))
 }
 
 function handleToggleMenu(e) {
   if (e) e.stopPropagation()
   if (state.isMenuOpen) {
-    state.isMenuOpen = false 
+    state.isMenuOpen = false
     menuRoot.classList.remove('menu-open')
     main.removeAttribute('class')
     window.removeEventListener('mousedown', handleOuterClick)
@@ -60,6 +60,10 @@ function handleToggleMenu(e) {
     main.classList.add('blur')
     window.addEventListener('mousedown', handleOuterClick)
     window.addEventListener('keydown', handleKeyDown)
+
+    // Scroll days down to bottom.
+    const menu = menuRoot.querySelector('ul.menu')
+    menu.scrollTop = menu.scrollHeight
   }
 }
 
@@ -67,7 +71,7 @@ function handleOuterClick(e) {
   if (state.isMenuOpen) {
     const target = e.target
     if (!menuRoot.contains(target) && target !== menuToggler) {
-      handleToggleMenu(null) 
+      handleToggleMenu(null)
     }
   }
 }
@@ -98,6 +102,7 @@ function getItemMarkup(item) {
   const li = document.createElement('li')
   li.setAttribute('class', 'menu-day')
 
+  console.log('item', item)
   li.innerHTML = `
     <p>${item.id}</p>  
     <ul>
@@ -116,15 +121,27 @@ export function updateDaysList(actionType, payload) {
   // Update state.days.
   console.log('actionType', actionType, 'payload', payload, now)
   const currentDay = state.days[state.days.length - 1]
-  switch(actionType) {
+  switch (actionType) {
     case 'ADD': {
       if (currentDay === undefined || currentDay.id !== now) {
         state.days.push({
           id: now,
-          items: [payload]
+          items: [payload],
         })
+        // Append new date to DOM.
+        menuRoot.querySelector('.menu').appendChild(
+          getItemMarkup({
+            id: now,
+            items: [payload],
+          })
+        )
       } else if (currentDay.id === now) {
         state.days[state.days.length - 1].items.push(payload)
+        // Append new value to latest date.
+        const lastElement = menuRoot.querySelector('.menu-day:last-of-type ul')
+        const li = document.createElement('li')
+        li.innerText = payload
+        lastElement.appendChild(li)
       }
       break
     }
