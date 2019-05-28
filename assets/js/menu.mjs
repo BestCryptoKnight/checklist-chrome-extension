@@ -26,6 +26,15 @@ export default function setupMenu() {
   // Add event listener to menuToggler.
   menuToggler.addEventListener('click', handleToggleMenu)
 
+  renderMenuItemsToDOM(false)
+}
+
+function scrollMenuDown() {
+  const menu = menuRoot.querySelector('ul.menu')
+  menu.scrollTop = menu.scrollHeight
+}
+
+export function renderMenuItemsToDOM(shouldRerenderAllChildren) {
   try {
     const data = localStorage.getItem('all_days')
     if (data === null) {
@@ -43,7 +52,26 @@ export default function setupMenu() {
   }
 
   // Render the latest 5 days into ul.menu
-  renderDayMarkupToDOM(state.days.slice(state.howManyDaysToShow * -1))
+  const menu = menuRoot.querySelector('ul.menu')
+  const items = state.days.slice(state.howManyDaysToShow * -1)
+
+  if (shouldRerenderAllChildren) {
+    menu.innerHTML = ''
+  }
+
+  const markup = items.map(i => getItemMarkup(i)).reverse()
+
+  if (items.length) {
+    markup.forEach(m => menu.prepend(m))
+  } else {
+    let li = document.createElement('li')
+    li.innerHTML = `
+      Check off completed tasks as you finish them. Your record will be shown here by each date.
+    `
+    menu.appendChild(li)
+  }
+
+  scrollMenuDown()
 }
 
 function handleToggleMenu(e) {
@@ -60,10 +88,6 @@ function handleToggleMenu(e) {
     main.classList.add('blur')
     window.addEventListener('mousedown', handleOuterClick)
     window.addEventListener('keydown', handleKeyDown)
-
-    // Scroll days down to bottom.
-    const menu = menuRoot.querySelector('ul.menu')
-    menu.scrollTop = menu.scrollHeight
   }
 }
 
@@ -82,27 +106,10 @@ function handleKeyDown(e) {
   }
 }
 
-function renderDayMarkupToDOM(items) {
-  const menu = menuRoot.querySelector('ul.menu')
-
-  const markup = items.map(i => getItemMarkup(i)).reverse()
-
-  if (items.length) {
-    markup.forEach(m => menu.prepend(m))
-  } else {
-    let li = document.createElement('li')
-    li.innerHTML = `
-      Check off completed tasks as you finish them. Your record will be shown here by each date.
-    `
-    menu.appendChild(li)
-  }
-}
-
 function getItemMarkup(item) {
   const li = document.createElement('li')
   li.setAttribute('class', 'menu-day')
 
-  console.log('item', item)
   li.innerHTML = `
     <p>${item.id}</p>  
     <ul>
@@ -143,6 +150,8 @@ export function updateDaysList(actionType, payload) {
         li.innerText = payload
         lastElement.appendChild(li)
       }
+
+      scrollMenuDown()
       break
     }
     default:

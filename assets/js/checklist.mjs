@@ -1,7 +1,7 @@
 // @ts-ignore
 import { getRandomId } from './utils.mjs'
 // @ts-ignore
-import { updateDaysList } from './menu.mjs'
+import { updateDaysList, renderMenuItemsToDOM } from './menu.mjs'
 
 const TRANSITION_DURATION = 250
 
@@ -34,7 +34,7 @@ export default function setupChecklist() {
   try {
     const data = localStorage.getItem(storageIds.today)
     if (data === null) {
-      today = [] 
+      today = []
       localStorage.setItem(storageIds.today, '[]')
     } else {
       today = JSON.parse(data)
@@ -44,7 +44,7 @@ export default function setupChecklist() {
     localStorage.setItem(storageIds.today, '[]')
   }
 
-  renderItemsToDOM(today, true)
+  renderChecklistItemsToDOM(today, true)
 
   // Add an event listener to resize textareas on resize.
   window.addEventListener('resize', () => {
@@ -57,7 +57,7 @@ export default function setupChecklist() {
   setInterval(pollUpdate, 300)
 }
 
-function renderItemsToDOM(items, initialMount) {
+function renderChecklistItemsToDOM(items, initialMount) {
   root.innerHTML = ''
   const markup = items.reduce((acc, curr) => {
     acc.push(getListItemMarkup(curr.id, curr.content, initialMount))
@@ -111,7 +111,7 @@ function getAllElementsAfter(element) {
 
   while (element) {
     if (element.nextSibling) {
-      elements.push(element.nextSibling)  
+      elements.push(element.nextSibling)
     }
     element = element.nextSibling
   }
@@ -148,7 +148,7 @@ function addEventListenersToCheckbox(checkbox) {
       elementsToMove.forEach(el => el.removeAttribute('style'))
     }, TRANSITION_DURATION * 2)
 
-    // 4. Update localStorage and menu. 
+    // 4. Update localStorage and menu.
     const value = checkbox.parentNode.querySelector('textarea').value
     updateDaysList('ADD', value)
   }
@@ -176,11 +176,12 @@ function addEventListenersToTextarea(textarea) {
       ]
 
       // Add event listeners to checkbox and drag button.
-      const checkbox = target.parentNode.querySelector('button.checklist-toggler')
+      const checkbox = target.parentNode.querySelector(
+        'button.checklist-toggler'
+      )
       const dragButton = target.parentNode.querySelector('button.drag')
       addEventListenersToCheckbox(checkbox)
       addEventListenersToDragger(dragButton)
-
 
       // Update current textarea value to trimmed value.
       target.value = value
@@ -586,7 +587,7 @@ function addNewEditor() {
 
   const textarea = node.querySelector('textarea')
 
-   addEventListenersToTextarea(textarea)
+  addEventListenersToTextarea(textarea)
   textarea.focus()
 }
 
@@ -687,7 +688,8 @@ function pollUpdate() {
     if (
       JSON.stringify(items) !== JSON.stringify(state.items.map(i => i.item))
     ) {
-      renderItemsToDOM(items, false)
+      renderChecklistItemsToDOM(items, false)
+      renderMenuItemsToDOM(true)
     }
     shouldPollForUpdate = false
     state.isMouseDown = false
