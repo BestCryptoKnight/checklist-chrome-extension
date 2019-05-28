@@ -61,7 +61,7 @@ div.menu-container {
   padding: 5% 2.5%;
   opacity: 0;
   transform: translateX(100%);
-  transition: transform 250ms var(--ease), opacity 150ms var(--ease) 100ms;
+  transition: transform 250ms var(--ease), opacity 200ms var(--ease) 100ms;
 }
 
 div.menu-container.menu-open {
@@ -76,9 +76,13 @@ div.menu-container > h3 {
 ul.menu {
   padding: 0;
   max-height: calc(100vh - 200px);
-  background: #eee;
+  background: none;
   display: grid;
   grid-gap: 1.5vw;
+}
+
+ul.menu > li {
+  font-size: var(--font-small);
 }
 
 li.menu-day {
@@ -97,3 +101,7 @@ li.menu-day p {
   font-size: var(--font-small);
 }
 
+main.blur {
+  opacity: .25;
+  transition: opacity 250ms var(--ease);
+}

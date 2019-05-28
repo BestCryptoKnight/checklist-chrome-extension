@@ -2,7 +2,7 @@ ul.chronograph {
   list-style: none;
   position: fixed;
   bottom: 0;
-  left: 5%;
+  left: 7%;
   display: grid;
   grid-gap: 0.5vw;
   margin-bottom: 2vw;

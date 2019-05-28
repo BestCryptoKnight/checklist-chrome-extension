@@ -16,8 +16,12 @@ ul.checklist {
 }
 
 @keyframes slideRightDown {
-  100% {
+  50% {
     opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0; 
     transform: scaleY(1);
   }
 }
@@ -35,8 +39,7 @@ ul.checklist::before {
   opacity: 0;
   transform: scaleY(0);
   transform-origin: 0 0;
-  animation: slideRightDown 500ms var(--ease);
-  animation-fill-mode: forwards;
+  animation: slideRightDown 1200ms var(--ease);
   animation-delay: 500ms;
 }
 
@@ -69,6 +72,18 @@ ul.checklist::after {
 ul.checklist > li {
   position: relative;
   padding: 1.5vw 5vw;
+}
+
+ul.checklist > li.bye-bye {
+  opacity: 0;
+  transform: scaleY(0);
+  transition: transform 250ms var(--ease), opacity 220ms var(--ease);
+  transition-delay: 250ms;
+  transform-origin: 100% 0;
+}
+
+ul.checklist > li.bye-bye button.checklist-toggler::after {
+  transform: scaleY(1); 
 }
 
 ul.checklist > li::before {
@@ -130,6 +145,34 @@ button.checklist-toggler {
   border-radius: 3px;
   background: var(--color-white);
   padding: 0;
+  cursor: pointer;
+}
+
+button.checklist-toggler:active::before {
+  opacity: .25;
+}
+
+button.checklist-toggler::before,
+button.checklist-toggler::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+}
+
+button.checklist-toggler::before {
+  box-shadow: 2px 2px 0 0 var(--color-black);
+  z-index: -1;
+}
+
+button.checklist-toggler::after {
+  background: #fae471;
+  transform: scaleY(0);
+  transform-origin: 0 100%;
+  transition: transform 220ms var(--ease);
 }
 
 button.checklist-toggler > span,

@@ -1,5 +1,7 @@
 // @ts-ignore
 import { getRandomId } from './utils.mjs'
+// @ts-ignore
+import { updateDaysList } from './menu.mjs'
 
 const TRANSITION_DURATION = 250
 
@@ -7,7 +9,6 @@ const TRANSITION_DURATION = 250
 const root = document.querySelector('.checklist')
 
 let storageIds = {
-  all: 'all_list',
   today: 'today_list',
 }
 
@@ -83,14 +84,17 @@ function renderItemsToDOM(items, initialMount) {
 
   // @ts-ignore
   Array.from(root.querySelectorAll('li')).forEach(i => {
-    const [textarea, toggler, dragger] = [
+    const [textarea, checkbox, dragger] = [
       i.querySelector('textarea'),
       i.querySelector('button.checklist-toggler'),
       i.querySelector('button.drag'),
     ]
 
     addEventListenersToTextarea(textarea)
-    addEventListenersToDragger(dragger)
+    if (i.getAttribute('data-id')) {
+      addEventListenersToDragger(dragger)
+      addEventListenersToCheckbox(checkbox)
+    }
   })
 }
 
@@ -100,6 +104,56 @@ function handleResize(target) {
     target.offsetHeight < target.scrollHeight
       ? target.scrollHeight + 'px'
       : 'calc(var(--font-ml) * 1.4)'
+}
+
+function getAllElementsAfter(element) {
+  const elements = []
+
+  while (element) {
+    if (element.nextSibling) {
+      elements.push(element.nextSibling)  
+    }
+    element = element.nextSibling
+  }
+
+  return elements
+}
+
+function addEventListenersToCheckbox(checkbox) {
+  function handleToggleCheckbox() {
+    // 1. Toggle checkbox class.
+    const parentNode = checkbox.parentNode
+    parentNode.classList.add('bye-bye')
+    // 2. Transform all li elements up after this checkbox.parentNode.
+    const amountToTranslate = parentNode.getBoundingClientRect().height
+    const elementsToMove = getAllElementsAfter(parentNode)
+    elementsToMove.forEach(el => {
+      el.style.transform = `translate3d(0px, ${amountToTranslate * -1}px, 0px)`
+      el.style.transition = `transform ${TRANSITION_DURATION}ms var(--ease)`
+      el.style.transitionDelay = `${TRANSITION_DURATION}ms`
+    })
+    // 3. Remove item from state.items to reflect change.
+    setTimeout(() => {
+      // 3a. Delete from state.
+      updateListItems(
+        'DELETE',
+        ListItem({
+          id: parentNode.getAttribute('data-id'),
+        })
+      )
+      // 3b. Remove from DOM.
+      root.removeChild(parentNode)
+
+      // Reset translated elements.
+      elementsToMove.forEach(el => el.removeAttribute('style'))
+    }, TRANSITION_DURATION * 2)
+
+    // 4. Update localStorage and menu. 
+    const value = checkbox.parentNode.querySelector('textarea').value
+    updateDaysList('ADD', value)
+  }
+
+  checkbox.addEventListener('click', handleToggleCheckbox)
 }
 
 function addEventListenersToTextarea(textarea) {
@@ -118,8 +172,15 @@ function addEventListenersToTextarea(textarea) {
       const [target, value, dataId] = [
         e.target,
         e.target.value.trim(),
-        e.target.parentElement.getAttribute('data-id'),
+        e.target.parentNode.getAttribute('data-id'),
       ]
+
+      // Add event listeners to checkbox and drag button.
+      const checkbox = target.parentNode.querySelector('button.checklist-toggler')
+      const dragButton = target.parentNode.querySelector('button.drag')
+      addEventListenersToCheckbox(checkbox)
+      addEventListenersToDragger(dragButton)
+
 
       // Update current textarea value to trimmed value.
       target.value = value
@@ -524,10 +585,8 @@ function addNewEditor() {
   root.appendChild(node)
 
   const textarea = node.querySelector('textarea')
-  const dragButton = node.querySelector('button.drag')
 
-  addEventListenersToTextarea(textarea)
-  addEventListenersToDragger(dragButton)
+   addEventListenersToTextarea(textarea)
   textarea.focus()
 }
 
