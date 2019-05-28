@@ -3,9 +3,10 @@ ul.checklist {
   list-style: none;
   padding: 0;
   background: var(--color-white);
-  margin: 5% 5% 0 5%;
+  margin: 5%;
   max-width: 1680px;
   width: 50%;
+  padding-bottom: 0.1%;
 }
 
 @media (max-width: 768px) {
@@ -33,6 +34,8 @@ ul.checklist::before {
   left: 0;
   right: 0;
   bottom: 0;
+  height: 100%;
+  width: 100%;
   border: 1px solid var(--color-black);
   border-radius: var(--border-radius);
   opacity: 0;
@@ -92,7 +95,7 @@ ul.checklist > li::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--color-white);
+  background: none;
   border: 1px solid var(--color-black);
   border-radius: var(--border-radius);
   box-shadow: 2px 2px var(--color-black);

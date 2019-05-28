@@ -13,6 +13,7 @@ button.menu-toggle {
   position: relative;
   padding: 2.5vw;
   background: none;
+  color: var(--color-black);
   border: none;
   cursor: pointer;
   z-index: 99;
@@ -57,6 +58,7 @@ div.menu-container {
   bottom: 0;
   width: 30vw;
   background: var(--color-white);
+  color: var(--color-black);
   border-left: 2px solid var(--color-black);
   padding: 5% 2.5%;
   opacity: 0;
