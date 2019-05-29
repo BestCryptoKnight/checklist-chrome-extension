@@ -1,5 +1,6 @@
 import setupChecklist from './checklist.mjs'
 import setupMenu from './menu.mjs'
+import setupSettings from './settings.mjs'
 
 window.onload = () => init()
 
@@ -8,6 +9,7 @@ function init() {
   setupChronograph(localStorage.getItem('end_day'))
   setupChecklist()
   setupMenu()
+  setupSettings()
   document.body.style.opacity = '1'
 }
 
@@ -15,14 +17,9 @@ function init() {
 function setupDate() {
   const el = document.querySelector('.date')
   const date = new Date().toDateString()
-  const [day, year] = [
-    date.slice(0, date.length - 4).trim(),
-    date.slice(date.length - 4, date.length),
-  ]
+  const day = date.slice(0, date.length - 4).trim()
 
   el.querySelector('.day').innerHTML = splitText(day)
-
-  el.querySelector('.year').innerHTML = splitText(year)
 }
 
 function splitText(word) {
@@ -96,4 +93,10 @@ function setupChronograph(endDay = 7) {
     dayRemainingEl.innerText = remainingDay
     remainingDay -= 67
   }, 67)
+}
+
+export const storageIds = {
+  today: 'today_list',
+  all: 'all_days',
+  darkMode: 'dark_mode',
 }

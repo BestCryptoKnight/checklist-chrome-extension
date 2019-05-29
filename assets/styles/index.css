@@ -34,8 +34,9 @@
   --font-inter: Inter;
   --font-mono: GTAmerica;
 
-  --color-white: rgb(250, 249, 248);
-  --color-black: rgb(0, 0, 0);
+  --color-white: rgb(18, 21, 25);
+  --color-black: rgb(250, 249, 248);
+  --color-gray: rgb(114, 127, 136);
 
   --box-shadow: 2px 2px 0px 0px var(--color-black);
   --border-radius: 8px;

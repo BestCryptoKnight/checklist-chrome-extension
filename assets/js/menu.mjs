@@ -102,6 +102,8 @@ function handleOuterClick(e) {
 
 function handleKeyDown(e) {
   if (e.key === `Escape` && state.isMenuOpen) {
+    // @ts-ignore
+    menuToggler.focus()
     handleToggleMenu(null)
   }
 }

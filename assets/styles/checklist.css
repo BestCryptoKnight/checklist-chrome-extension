@@ -6,7 +6,6 @@ ul.checklist {
   margin: 5%;
   max-width: 1680px;
   width: 50%;
-  padding-bottom: 0.1%;
 }
 
 @media (max-width: 768px) {
@@ -38,6 +37,7 @@ ul.checklist::before {
   width: 100%;
   border: 1px solid var(--color-black);
   border-radius: var(--border-radius);
+  background: var(--color-white);
   opacity: 0;
   transform: scaleY(0);
   transform-origin: 0 0;
@@ -99,6 +99,7 @@ ul.checklist > li::before {
   border: 1px solid var(--color-black);
   border-radius: var(--border-radius);
   box-shadow: 2px 2px var(--color-black);
+  background: var(--color-white);
   opacity: 0;
   transform: scale(1);
   transition: inherit;
@@ -108,7 +109,6 @@ ul.checklist > li::before {
 
 ul.checklist > li.dragging::before {
   opacity: 1;
-  transform: scale(1.01);
 }
 
 ul.checklist > li > .drag {
@@ -138,13 +138,13 @@ ul.checklist > li:last-of-type > .drag {
 
 button.checklist-toggler {
   position: absolute;
-  top: 50%;
+  top: 1.5vw;
   left: 2vw;
-  transform: translateY(-50%);
+  transform: translateY(0);
   width: 2vw;
   height: 2vw;
   border: 1px solid var(--color-black);
-  border-radius: 3px;
+  border-radius: var(--border-radius);
   background: var(--color-white);
   padding: 0;
   cursor: pointer;

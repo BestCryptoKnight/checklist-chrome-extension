@@ -2,15 +2,12 @@
 import { getRandomId } from './utils.mjs'
 // @ts-ignore
 import { updateDaysList, renderMenuItemsToDOM } from './menu.mjs'
+import { storageIds } from './index.js'
 
 const TRANSITION_DURATION = 250
 
 // Cache root <ul> element.
 const root = document.querySelector('.checklist')
-
-let storageIds = {
-  today: 'today_list',
-}
 
 const state = {
   items: [],
@@ -57,7 +54,7 @@ export default function setupChecklist() {
   setInterval(pollUpdate, 300)
 }
 
-function renderChecklistItemsToDOM(items, initialMount) {
+export function renderChecklistItemsToDOM(items, initialMount) {
   root.innerHTML = ''
   const markup = items.reduce((acc, curr) => {
     acc.push(getListItemMarkup(curr.id, curr.content, initialMount))

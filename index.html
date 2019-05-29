@@ -36,14 +36,34 @@
         <div class="menu-container">
           <h3>Get $h%t Done!</h3>
           <ul class="menu"></ul>
-          <div class="miscellaneous">Hello</div>
+          <div class="settings">
+            <button class="header"><span>Settings</span></button>
+            <div class="settings-menu">
+              <p>
+                Hello, hope you're enjoying this little project! Your previous 7
+                days will be saved in the browser.
+              </p>
+              <ul>
+                <li><span class="highlight">enter</span> to add a new item</li>
+                <li>
+                  <span class="highlight">shift + enter</span> to add a new line
+                </li>
+                <li>
+                  remove an item by deleting its content
+                </li>
+              </ul>
+              <div class="actions">
+                <button class="dark-mode">Dark Mode</button>
+                <button class="reset">Reset Data</button>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
     </header>
     <main>
       <h1 class="hidden">Get $h*t Done! Chrome Extension</h1>
       <ul class="checklist"></ul>
-
       <div class="date">
         <ul class="chronograph">
           <li tabindex="0">
@@ -55,7 +75,6 @@
             <span id="today-remaining"></span>
           </li>
         </ul>
-        <span class="year"></span>
         <span class="day"></span>
       </div>
     </main>
