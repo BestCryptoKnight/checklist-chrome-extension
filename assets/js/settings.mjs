@@ -25,17 +25,26 @@ export default function setupSettings() {
     state.isMenuOpen = !state.isMenuOpen
 
     const translateAmt = content.getBoundingClientRect().height
+    const focusableEls = root.querySelectorAll(
+      'button, a, input, textarea, select'
+    )
     if (state.isMenuOpen) {
       root.classList.add('settings--open')
       menuRoot.classList.add('submenu--open')
       // @ts-ignore
       root.style.transform = `translateY(${translateAmt * -1}px)`
       window.addEventListener('click', handleOuterClick)
+
+      // Enable tabindex on buttons.
+      focusableEls.forEach(el => el.setAttribute('tabindex', '0'))
     } else {
       root.classList.remove('settings--open')
       menuRoot.classList.remove('submenu--open')
       root.removeAttribute('style')
       window.removeEventListener('click', handleOuterClick)
+
+      // Disable tabindex on buttons.
+      focusableEls.forEach(el => el.setAttribute('tabindex', '-1'))
     }
   }
 

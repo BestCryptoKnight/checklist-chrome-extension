@@ -16,6 +16,10 @@ ul.checklist {
 }
 
 @keyframes slideRightDown {
+  0% {
+    opacity: 0; 
+    transform: scaleY(0);
+  }
   50% {
     opacity: 1;
     transform: scaleY(1);
@@ -39,7 +43,6 @@ ul.checklist::before {
   border-radius: var(--border-radius);
   background: var(--color-white);
   opacity: 0;
-  transform: scaleY(0);
   transform-origin: 0 0;
   animation: slideRightDown 1000ms var(--ease);
   animation-delay: 500ms;

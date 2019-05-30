@@ -1,7 +1,7 @@
 {
-  "name": "Things That Matter",
-  "version": "1.0",
-  "description": "A few important reminders to add joy to your week.",
+  "name": "Get $h%t Done!",
+  "version": "0.0.0.1",
+  "description": "An interactive checklist — add, edit, complete tasks. Last 7 days saved in your browser.",
   "permissions": ["tabs"],
   "chrome_url_overrides": {
     "newtab": "index.html"

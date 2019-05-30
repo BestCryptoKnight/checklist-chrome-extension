@@ -208,6 +208,9 @@ function addEventListenersToTextarea(textarea) {
           // Add new editor to root.
           addNewEditor()
         }
+
+        // Set focus to last list item's editor.
+        root.querySelector('li:last-of-type textarea').focus()
       } else {
         if (dataId) {
           // If there's a dataId, that means it's saved in localStorage.

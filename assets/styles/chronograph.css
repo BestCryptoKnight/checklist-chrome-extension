@@ -26,7 +26,7 @@ ul.chronograph > li::before {
   left: 0;
   right: 0;
   bottom: 0;
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
   opacity: 0;
   pointer-events: none;
   touch-action: none;

@@ -65,11 +65,11 @@ body {
 
 ::selection {
   background: transparent;
-  color: #fff;
+  color: var(--color-gray);
 }
 ::-moz-selection {
   background: transparent;
-  color: #fff;
+  color: var(--color-gray);
 }
 
 /*
