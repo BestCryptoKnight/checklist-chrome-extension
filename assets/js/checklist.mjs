@@ -600,7 +600,7 @@ function getListItemMarkup(id, value, isInitialMount) {
       </button>
       <textarea
         class="checklist-item"
-        placeholder="Get shit done!"
+        placeholder="Get sh%t done!"
         spellcheck="false"
       >${value ? value : ''}</textarea>
       <button class="drag">
